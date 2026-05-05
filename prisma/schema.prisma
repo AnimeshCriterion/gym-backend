@@ -1,0 +1,209 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  SUPER_ADMIN
+  ORG_ADMIN
+  BRANCH_MANAGER
+  TRAINER
+  MEMBER
+}
+
+enum BillingCycle {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  HALF_YEARLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PENDING
+  FROZEN
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  UPI
+  BANK_TRANSFER
+  ONLINE
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  email     String   @unique
+  phone     String?
+  address   String?
+  logoUrl   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branches      Branch[]
+  users         User[]
+  plans         Plan[]
+  subscriptions Subscription[]
+  payments      Payment[]
+}
+
+model Branch {
+  id             String   @id @default(cuid())
+  name           String
+  address        String?
+  phone          String?
+  email          String?
+  isActive       Boolean  @default(true)
+  organizationId String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  users         User[]
+  attendances   Attendance[]
+  subscriptions Subscription[]
+}
+
+model User {
+  id               String    @id @default(cuid())
+  name             String
+  email            String    @unique
+  phone            String?   @unique
+  passwordHash     String
+  role             Role      @default(MEMBER)
+  isActive         Boolean   @default(true)
+  organizationId   String?
+  branchId         String?
+  profilePicUrl    String?
+  dateOfBirth      DateTime?
+  gender           String?
+  address          String?
+  emergencyContact String?
+  trainerId        String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  organization   Organization?  @relation(fields: [organizationId], references: [id])
+  branch         Branch?        @relation(fields: [branchId], references: [id])
+  refreshTokens  RefreshToken[]
+  subscriptions  Subscription[]
+  attendances    Attendance[]
+  payments       Payment[]
+  trainedMembers User[]         @relation("TrainerMembers")
+  trainer        User?          @relation("TrainerMembers", fields: [trainerId], references: [id])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Plan {
+  id             String       @id @default(cuid())
+  name           String
+  description    String?
+  price          Float
+  billingCycle   BillingCycle @default(MONTHLY)
+  durationDays   Int
+  maxFreezeDays  Int          @default(0)
+  features       Json?
+  isActive       Boolean      @default(true)
+  organizationId String
+  branchId       String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization  Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id             String             @id @default(cuid())
+  userId         String
+  planId         String
+  organizationId String
+  branchId       String?
+  status         SubscriptionStatus @default(PENDING)
+  startDate      DateTime
+  endDate        DateTime
+  autoRenew      Boolean            @default(true)
+  freezeStart    DateTime?
+  freezeEnd      DateTime?
+  frozenDays     Int                @default(0)
+  notes          String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  user         User                     @relation(fields: [userId], references: [id])
+  plan         Plan                     @relation(fields: [planId], references: [id])
+  organization Organization             @relation(fields: [organizationId], references: [id])
+  branch       Branch?                  @relation(fields: [branchId], references: [id])
+  payments     Payment[]
+  renewalLogs  SubscriptionRenewalLog[]
+}
+
+model SubscriptionRenewalLog {
+  id              String   @id @default(cuid())
+  subscriptionId  String
+  renewedAt       DateTime @default(now())
+  previousEndDate DateTime
+  newEndDate      DateTime
+  amount          Float
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  userId         String
+  subscriptionId String?
+  organizationId String
+  amount         Float
+  status         PaymentStatus @default(PENDING)
+  method         PaymentMethod @default(CASH)
+  transactionId  String?
+  notes          String?
+  paidAt         DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id])
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id])
+  organization Organization  @relation(fields: [organizationId], references: [id])
+}
+
+model Attendance {
+  id         String    @id @default(cuid())
+  userId     String
+  branchId   String
+  checkInAt  DateTime  @default(now())
+  checkOutAt DateTime?
+  notes      String?
+  createdAt  DateTime  @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  branch Branch @relation(fields: [branchId], references: [id])
+}

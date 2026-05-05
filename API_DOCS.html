@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Gym SaaS — Developer Documentation</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;font-size:14px;color:#1a1a2e;background:#f0f2f8;line-height:1.6}
+
+/* ── Top Header ── */
+.top-header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 60%,#0f3460 100%);color:#fff;padding:28px 48px 0}
+.top-header-inner{max-width:1100px;margin:0 auto}
+.top-header h1{font-size:26px;font-weight:700}
+.top-header p{opacity:.7;font-size:13px;margin-top:4px}
+.badges{margin:10px 0 0}
+.badge{display:inline-block;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);padding:3px 10px;border-radius:12px;font-size:11px;margin-right:6px}
+
+/* ── Tabs ── */
+.tab-nav{display:flex;gap:0;margin-top:20px;max-width:1100px}
+.tab-btn{padding:11px 24px;cursor:pointer;font-size:13px;font-weight:600;color:rgba(255,255,255,.6);border:none;background:transparent;border-radius:8px 8px 0 0;transition:all .2s;letter-spacing:.2px}
+.tab-btn:hover{color:#fff;background:rgba(255,255,255,.08)}
+.tab-btn.active{color:#fff;background:#fff;color:#1a1a2e}
+
+/* ── Content ── */
+.content-wrap{max-width:1100px;margin:0 auto;padding:32px 0 60px}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.card{background:#fff;border-radius:10px;padding:28px 32px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+
+/* ── Typography ── */
+h2{font-size:18px;font-weight:700;color:#0f3460;border-bottom:2px solid #e8f0fe;padding-bottom:8px;margin:28px 0 16px}
+h2:first-child{margin-top:0}
+h3{font-size:14px;font-weight:700;color:#1a1a2e;margin:18px 0 8px}
+h4{font-size:13px;font-weight:600;color:#444;margin:12px 0 6px}
+
+/* ── Endpoint ── */
+.endpoint{border:1px solid #e8eaed;border-radius:8px;margin:10px 0;overflow:hidden}
+.ep-head{display:flex;align-items:center;gap:10px;padding:11px 16px;background:#f8f9fc;border-bottom:1px solid #e8eaed;flex-wrap:wrap}
+.method{font-size:10px;font-weight:800;padding:3px 9px;border-radius:4px;min-width:54px;text-align:center;letter-spacing:.6px}
+.GET{background:#e6f4ea;color:#137333}.POST{background:#e8f0fe;color:#1a73e8}
+.PUT{background:#fef7e0;color:#b06000}.PATCH{background:#fff3e0;color:#e65100}
+.DELETE{background:#fce8e6;color:#c5221f}
+.ep-path{font-family:'Consolas','Courier New',monospace;font-size:13px;font-weight:700;color:#1a1a2e}
+.ep-note{margin-left:auto;font-size:11px;color:#5f6368}
+.ep-body{padding:14px 16px}
+.auth-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.public{background:#e6f4ea;color:#137333}.protected{background:#fce8e6;color:#c5221f}
+
+/* ── Code ── */
+pre{background:#1e1e2e;color:#cdd6f4;padding:14px 16px;border-radius:7px;font-size:12px;overflow-x:auto;margin:8px 0;line-height:1.75}
+code{font-family:'Consolas','Courier New',monospace;font-size:12px}
+.k{color:#89b4fa}.s{color:#a6e3a1}.n{color:#fab387}.b{color:#cba6f7}.c{color:#6c7086;font-style:italic}
+.inline-code{background:#f1f3f4;padding:2px 6px;border-radius:4px;font-family:'Consolas','Courier New',monospace;font-size:12px;color:#d63384}
+
+/* ── Info / Warn boxes ── */
+.info{background:#e8f0fe;border-left:4px solid #1a73e8;padding:10px 14px;border-radius:0 7px 7px 0;margin:10px 0;font-size:13px}
+.warn{background:#fef7e0;border-left:4px solid #fbbc04;padding:10px 14px;border-radius:0 7px 7px 0;margin:10px 0;font-size:13px}
+.success{background:#e6f4ea;border-left:4px solid #34a853;padding:10px 14px;border-radius:0 7px 7px 0;margin:10px 0;font-size:13px}
+
+/* ── Tables ── */
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+th{background:#1a1a2e;color:#fff;padding:9px 12px;text-align:left;font-weight:600;font-size:12px}
+td{padding:9px 12px;border-bottom:1px solid #e8eaed;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:nth-child(even) td{background:#f8f9fc}
+.tick{color:#137333;font-weight:800;font-size:15px}
+.cross{color:#c5221f;font-weight:800;font-size:15px}
+.part{color:#b06000;font-weight:700}
+
+/* ── Pills ── */
+.pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;margin:1px}
+.p200{background:#e6f4ea;color:#137333}.p201{background:#e8f0fe;color:#1a73e8}
+.p400{background:#fef7e0;color:#b06000}.p401,.p403{background:#fce8e6;color:#c5221f}
+.p404{background:#f1f3f4;color:#5f6368}.p409{background:#f3e8fd;color:#6a0dad}
+
+/* ── Role chips ── */
+.role{display:inline-block;font-size:10px;font-weight:800;padding:2px 8px;border-radius:3px;margin:2px;letter-spacing:.3px}
+.r-sa{background:#1a1a2e;color:#fff}.r-oa{background:#0f3460;color:#fff}
+.r-bm{background:#533483;color:#fff}.r-tr{background:#e94560;color:#fff}.r-mb{background:#2196f3;color:#fff}
+
+/* ── Cols grid ── */
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.sub{color:#5f6368;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin:10px 0 4px}
+
+/* ── Schema ── */
+.schema-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.model-card{background:#fff;border:1px solid #e8eaed;border-radius:8px;overflow:hidden}
+.model-head{background:#0f3460;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px}
+.model-head .icon{font-size:16px}
+.model-body{padding:0}
+.field-row{display:flex;align-items:center;padding:7px 16px;border-bottom:1px solid #f1f3f4;gap:8px}
+.field-row:last-child{border-bottom:none}
+.field-name{font-family:'Consolas','Courier New',monospace;font-size:12px;font-weight:600;min-width:130px;color:#1a1a2e}
+.field-type{font-size:11px;color:#1a73e8;font-weight:600;min-width:80px}
+.field-meta{font-size:11px;color:#5f6368;flex:1}
+.field-pk{background:#fef7e0;color:#b06000;font-size:9px;font-weight:800;padding:1px 5px;border-radius:3px}
+.field-fk{background:#e8f0fe;color:#1a73e8;font-size:9px;font-weight:800;padding:1px 5px;border-radius:3px}
+.field-opt{color:#9aa0a6;font-size:11px}
+
+/* ── Enum card ── */
+.enum-wrap{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}
+.enum-card{background:#f8f9fc;border:1px solid #e8eaed;border-radius:7px;padding:12px 16px;min-width:180px}
+.enum-name{font-weight:700;font-size:12px;color:#0f3460;margin-bottom:8px}
+.enum-val{display:inline-block;background:#e8f0fe;color:#1a73e8;font-size:11px;font-weight:600;padding:2px 8px;border-radius:3px;margin:2px}
+
+/* ── Feature cards ── */
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.feature-card{background:#fff;border:1px solid #e8eaed;border-radius:10px;overflow:hidden}
+.fc-head{padding:14px 18px;color:#fff;font-weight:700;font-size:14px}
+.fc-body{padding:14px 18px}
+.feature-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid #f1f3f4;font-size:13px}
+.feature-item:last-child{border-bottom:none}
+.fi-icon{font-size:14px;margin-top:1px}
+.fc-sa .fc-head{background:linear-gradient(135deg,#1a1a2e,#2d3561)}
+.fc-oa .fc-head{background:linear-gradient(135deg,#0f3460,#1565c0)}
+.fc-bm .fc-head{background:linear-gradient(135deg,#533483,#7b1fa2)}
+.fc-tr .fc-head{background:linear-gradient(135deg,#e94560,#c62828)}
+.fc-mb .fc-head{background:linear-gradient(135deg,#1976d2,#0288d1)}
+
+/* ── Mobile guide steps ── */
+.flow-wrap{position:relative;padding-left:32px}
+.flow-step{position:relative;margin-bottom:20px}
+.flow-step::before{content:'';position:absolute;left:-24px;top:24px;bottom:-20px;width:2px;background:#e8eaed}
+.flow-step:last-child::before{display:none}
+.step-num{position:absolute;left:-32px;top:8px;width:18px;height:18px;background:#0f3460;color:#fff;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.step-title{font-weight:700;font-size:14px;color:#0f3460;margin-bottom:6px}
+
+/* ── ER relation line ── */
+.er-wrap{background:#1e1e2e;border-radius:8px;padding:20px;color:#cdd6f4;font-family:'Consolas','Courier New',monospace;font-size:12px;line-height:2}
+.er-model{color:#89b4fa;font-weight:700}
+.er-rel{color:#a6e3a1}
+.er-field{color:#fab387}
+.er-com{color:#6c7086;font-style:italic}
+
+.footer{text-align:center;color:#9aa0a6;font-size:12px;padding:20px;border-top:1px solid #e8eaed;margin-top:8px}
+
+@media print{
+  body{background:#fff}
+  .top-header{padding:20px 32px 0}
+  .tab-nav{display:none}
+  .tab-panel{display:block!important}
+  .card{box-shadow:none;border:1px solid #e8eaed}
+  .schema-grid,.cols2{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="top-header">
+  <div class="top-header-inner">
+    <h1>🏋️ Gym SaaS — Developer Documentation</h1>
+    <p>Complete reference for mobile app developers · v1.0 · Multi-tenant SaaS</p>
+    <div class="badges">
+      <span class="badge">REST · JSON</span>
+      <span class="badge">JWT Auth</span>
+      <span class="badge">Node.js + Express 5</span>
+      <span class="badge">Prisma 7 + SQLite</span>
+      <span class="badge">5 Roles</span>
+    </div>
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('api',this)">📡 API Reference</button>
+      <button class="tab-btn" onclick="switchTab('schema',this)">🗄️ Database Schema</button>
+      <button class="tab-btn" onclick="switchTab('roles',this)">🔐 Roles & Features</button>
+      <button class="tab-btn" onclick="switchTab('guide',this)">📱 Mobile App Guide</button>
+    </div>
+  </div>
+</div>
+
+<div style="padding:0 48px">
+<div class="content-wrap">
+
+<!-- ═══════════════════════════════════════════════
+     TAB 1 — API REFERENCE
+═══════════════════════════════════════════════ -->
+<div id="tab-api" class="tab-panel active">
+
+<div class="card">
+<h2>Base URL &amp; Authentication</h2>
+<div class="cols2">
+<div>
+<div class="sub">Base URL</div>
+<pre><code>http://your-server:3000/api/v1</code></pre>
+<div class="sub">Protected Header</div>
+<pre><code><span class="k">Authorization</span>: Bearer &lt;accessToken&gt;
+<span class="k">Content-Type</span>: application/json</code></pre>
+</div>
+<div>
+<div class="sub">Token Lifetime</div>
+<table>
+<tr><th>Token</th><th>Expires</th></tr>
+<tr><td>accessToken</td><td>15 minutes</td></tr>
+<tr><td>refreshToken</td><td>7 days</td></tr>
+</table>
+<div class="info" style="margin-top:8px">Always store the refreshToken securely and use it to obtain new accessTokens before expiry.</div>
+</div>
+</div>
+
+<h3>Response Envelopes</h3>
+<div class="cols2">
+<pre><code><span class="c">// Single record</span>
+{ <span class="k">"success"</span>: <span class="b">true</span>, <span class="k">"message"</span>: <span class="s">"..."</span>, <span class="k">"data"</span>: {} }
+
+<span class="c">// Error</span>
+{ <span class="k">"success"</span>: <span class="b">false</span>, <span class="k">"message"</span>: <span class="s">"..."</span>, <span class="k">"errors"</span>: [] }</code></pre>
+<pre><code><span class="c">// Paginated list</span>
+{
+  <span class="k">"success"</span>: <span class="b">true</span>, <span class="k">"data"</span>: [],
+  <span class="k">"pagination"</span>: {
+    <span class="k">"total"</span>: <span class="n">100</span>, <span class="k">"page"</span>: <span class="n">1</span>,
+    <span class="k">"limit"</span>: <span class="n">20</span>, <span class="k">"pages"</span>: <span class="n">5</span>
+  }
+}</code></pre>
+</div>
+</div>
+
+<!-- AUTH -->
+<div class="card">
+<h2>1. Auth</h2>
+
+<div class="endpoint">
+  <div class="ep-head"><span class="method POST">POST</span><span class="ep-path">/auth/register</span><span class="auth-tag public">Public</span><span class="ep-note">Register gym + first admin account</span></div>
+  <div class="ep-body">
+<pre><code>{
+  <span class="k">"orgName"</span>: <span class="s">"FitLife Gym"</span>,
+  <span class="k">"orgSlug"</span>: <span class="s">"fitlife-gym"</span>,          <span class="c">// lowercase, hyphens only, unique</span>
+  <span class="k">"orgEmail"</span>: <span class="s">"info@fitlife.com"</span>,
+  <span class="k">"orgPhone"</span>: <span class="s">"9876543210"</span>,           <span class="c">// optional</span>
+  <span class="k">"adminName"</span>: <span class="s">"Animesh"</span>,
+  <span class="k">"adminEmail"</span>: <span class="s">"animesh@fitlife.com"</span>,
+  <span class="k">"adminPassword"</span>: <span class="s">"password123"</span>,    <span class="c">// min 8 chars</span>
+  <span class="k">"adminPhone"</span>: <span class="s">"9876543210"</span>           <span class="c">// optional</span>
+}</code></pre>
+  <div class="sub">Response <span class="pill p201">201</span></div>
+<pre><code>{ <span class="k">"data"</span>: { <span class="k">"organization"</span>: {…}, <span class="k">"user"</span>: {…}, <span class="k">"accessToken"</span>: <span class="s">"eyJ…"</span>, <span class="k">"refreshToken"</span>: <span class="s">"eyJ…"</span> } }</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="ep-head"><span class="method POST">POST</span><span class="ep-path">/auth/login</span><span class="auth-tag public">Public</span></div>
+  <div class="ep-body">
+<pre><code>{ <span class="k">"email"</span>: <span class="s">"animesh@fitlife.com"</span>, <span class="k">"password"</span>: <span class="s">"password123"</span> }</code></pre>
+<pre><code><span class="c">// Response 200</span>
+{
+  <span class="k">"data"</span>: {
+    <span class="k">"user"</span>: { <span class="k">"id"</span>:<span class="s">"..."</span>, <span class="k">"name"</span>:<span class="s">"Animesh"</span>, <span class="k">"email"</span>:<span class="s">"..."</span>, <span class="k">"role"</span>:<span class="s">"ORG_ADMIN"</span>, <span class="k">"organizationId"</span>:<span class="s">"..."</span>, <span class="k">"branchId"</span>:<span class="b">null</span> },
+    <span class="k">"accessToken"</span>: <span class="s">"eyJ..."</span>,
+    <span class="k">"refreshToken"</span>: <span class="s">"eyJ..."</span>
+  }
+}</code></pre>
+  </div>
+</div>
+
+<div class="endpoint">
+  <div class="ep-head"><span class="method POST">POST</span><span class="ep-path">/auth/refresh</span><span class="auth-tag public">Public</span><span class="ep-note">Rotate tokens</span></div>
+  <div class="ep-body"><pre><code>{ <span class="k">"refreshToken"</span>: <span class="s">"eyJ..."</span> }  <span class="c">// → { accessToken, refreshToken }</span></code></pre></div>
+</div>
+
+<div class="endpoint">
+  <div class="ep-head"><span class="method POST">POST</span><span class="ep-path">/auth/logout</span><span class="auth-tag public">Public</span></div>
+  <div class="ep-body"><pre><code>{ <span class="k">"refreshToken"</span>: <span class="s">"eyJ..."</span> }</code></pre></div>
+</div>
+
+<div class="endpoint">
+  <div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/auth/me</span><span class="auth-tag protected">Protected</span><span class="ep-note">Current user from token</span></div>
+</div>
+</div>
+
+<!-- BRANCHES -->
+<div class="card">
+<h2>2. Branches</h2>
+<div class="endpoint"><div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/branches</span><span class="auth-tag protected">Protected</span><span class="ep-note">All roles</span></div></div>
+<div class="endpoint"><div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/branches/:id</span><span class="auth-tag protected">Protected</span></div></div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method POST">POST</span><span class="ep-path">/branches</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN only</span></div>
+  <div class="ep-body"><pre><code>{ <span class="k">"name"</span>:<span class="s">"Main Branch"</span>, <span class="k">"address"</span>:<span class="s">"..."</span>, <span class="k">"phone"</span>:<span class="s">"..."</span>, <span class="k">"email"</span>:<span class="s">"..."</span> }</code></pre></div>
+</div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method PUT">PUT</span><span class="ep-path">/branches/:id</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN only · all fields optional</span></div>
+</div>
+<div class="endpoint"><div class="ep-head"><span class="method DELETE">DELETE</span><span class="ep-path">/branches/:id</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN only · soft delete</span></div></div>
+</div>
+
+<!-- USERS -->
+<div class="card">
+<h2>3. Users</h2>
+<div class="endpoint">
+  <div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/users</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN / BRANCH_MANAGER</span></div>
+  <div class="ep-body">Query: <code>page, limit, role, branchId, isActive</code></div>
+</div>
+<div class="endpoint"><div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/users/:id</span><span class="auth-tag protected">Protected</span><span class="ep-note">Returns user + branch + latest subscription</span></div></div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method POST">POST</span><span class="ep-path">/users</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN / BRANCH_MANAGER</span></div>
+  <div class="ep-body">
+<pre><code>{
+  <span class="k">"name"</span>: <span class="s">"John Doe"</span>,             <span class="c">// required</span>
+  <span class="k">"email"</span>: <span class="s">"john@example.com"</span>,    <span class="c">// required, unique</span>
+  <span class="k">"password"</span>: <span class="s">"pass1234"</span>,        <span class="c">// required, min 8</span>
+  <span class="k">"phone"</span>: <span class="s">"9876543210"</span>,         <span class="c">// optional</span>
+  <span class="k">"role"</span>: <span class="s">"MEMBER"</span>,               <span class="c">// MEMBER | TRAINER | BRANCH_MANAGER</span>
+  <span class="k">"branchId"</span>: <span class="s">"cld…"</span>,            <span class="c">// optional</span>
+  <span class="k">"dateOfBirth"</span>: <span class="s">"1995-06-15"</span>,   <span class="c">// optional</span>
+  <span class="k">"gender"</span>: <span class="s">"MALE"</span>,               <span class="c">// MALE | FEMALE | OTHER</span>
+  <span class="k">"address"</span>: <span class="s">"456 Street"</span>,       <span class="c">// optional</span>
+  <span class="k">"emergencyContact"</span>: <span class="s">"999…"</span>,    <span class="c">// optional</span>
+  <span class="k">"trainerId"</span>: <span class="s">"cld…"</span>            <span class="c">// optional</span>
+}</code></pre>
+  </div>
+</div>
+<div class="endpoint"><div class="ep-head"><span class="method PUT">PUT</span><span class="ep-path">/users/:id</span><span class="auth-tag protected">Protected</span><span class="ep-note">All fields optional · cannot change email</span></div></div>
+<div class="endpoint"><div class="ep-head"><span class="method DELETE">DELETE</span><span class="ep-path">/users/:id</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN only · soft delete</span></div></div>
+</div>
+
+<!-- PLANS -->
+<div class="card">
+<h2>4. Plans</h2>
+<div class="endpoint"><div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/plans</span><span class="auth-tag protected">Protected</span><span class="ep-note">All roles · Query: branchId, isActive</span></div></div>
+<div class="endpoint"><div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/plans/:id</span><span class="auth-tag protected">Protected</span></div></div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method POST">POST</span><span class="ep-path">/plans</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN only</span></div>
+  <div class="ep-body">
+<pre><code>{
+  <span class="k">"name"</span>: <span class="s">"Monthly Basic"</span>,
+  <span class="k">"price"</span>: <span class="n">999.00</span>,
+  <span class="k">"billingCycle"</span>: <span class="s">"MONTHLY"</span>,   <span class="c">// DAILY|WEEKLY|MONTHLY|QUARTERLY|HALF_YEARLY|YEARLY</span>
+  <span class="k">"durationDays"</span>: <span class="n">30</span>,
+  <span class="k">"maxFreezeDays"</span>: <span class="n">5</span>,          <span class="c">// optional</span>
+  <span class="k">"features"</span>: [<span class="s">"Gym Access"</span>, <span class="s">"Locker"</span>], <span class="c">// optional</span>
+  <span class="k">"branchId"</span>: <span class="s">"cld…"</span>          <span class="c">// optional — null = all branches</span>
+}</code></pre>
+  </div>
+</div>
+<div class="endpoint"><div class="ep-head"><span class="method PUT">PUT</span><span class="ep-path">/plans/:id</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN only</span></div></div>
+<div class="endpoint"><div class="ep-head"><span class="method DELETE">DELETE</span><span class="ep-path">/plans/:id</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN only · soft delete</span></div></div>
+</div>
+
+<!-- SUBSCRIPTIONS -->
+<div class="card">
+<h2>5. Subscriptions</h2>
+<div class="endpoint"><div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/subscriptions/my</span><span class="auth-tag protected">Protected</span><span class="ep-note">Any role — own subscriptions</span></div></div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/subscriptions</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN / BRANCH_MANAGER</span></div>
+  <div class="ep-body">Query: <code>page, limit, status, userId, branchId</code> · status: ACTIVE|EXPIRED|CANCELLED|PENDING|FROZEN</div>
+</div>
+<div class="endpoint"><div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/subscriptions/:id</span><span class="auth-tag protected">Protected</span><span class="ep-note">Includes renewal logs + payments</span></div></div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method POST">POST</span><span class="ep-path">/subscriptions</span><span class="auth-tag protected">Protected</span><span class="ep-note">Creates subscription + pending payment</span></div>
+  <div class="ep-body">
+<pre><code>{
+  <span class="k">"userId"</span>: <span class="s">"cld…"</span>,
+  <span class="k">"planId"</span>: <span class="s">"cld…"</span>,
+  <span class="k">"branchId"</span>: <span class="s">"cld…"</span>,   <span class="c">// optional</span>
+  <span class="k">"startDate"</span>: <span class="s">"2026-05-01"</span>,
+  <span class="k">"autoRenew"</span>: <span class="b">true</span>,
+  <span class="k">"notes"</span>: <span class="s">"First sub"</span>   <span class="c">// optional</span>
+}</code></pre>
+  </div>
+</div>
+<div class="endpoint"><div class="ep-head"><span class="method PATCH">PATCH</span><span class="ep-path">/subscriptions/:id/cancel</span><span class="auth-tag protected">Protected</span><span class="ep-note">No body needed</span></div></div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method PATCH">PATCH</span><span class="ep-path">/subscriptions/:id/freeze</span><span class="auth-tag protected">Protected</span><span class="ep-note">Extends end date by frozen days</span></div>
+  <div class="ep-body"><pre><code>{ <span class="k">"freezeStart"</span>: <span class="s">"2026-05-10"</span>, <span class="k">"freezeEnd"</span>: <span class="s">"2026-05-15"</span> }</code></pre></div>
+</div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method PATCH">PATCH</span><span class="ep-path">/subscriptions/:id/auto-renew</span><span class="auth-tag protected">Protected</span></div>
+  <div class="ep-body"><pre><code>{ <span class="k">"autoRenew"</span>: <span class="b">false</span> }</code></pre></div>
+</div>
+</div>
+
+<!-- ATTENDANCE -->
+<div class="card">
+<h2>6. Attendance</h2>
+<div class="endpoint">
+  <div class="ep-head"><span class="method POST">POST</span><span class="ep-path">/attendance/check-in</span><span class="auth-tag protected">Protected</span><span class="ep-note">Any role</span></div>
+  <div class="ep-body"><pre><code>{ <span class="k">"branchId"</span>: <span class="s">"cld…"</span>, <span class="k">"notes"</span>: <span class="s">"Morning session"</span> }</code></pre></div>
+</div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method POST">POST</span><span class="ep-path">/attendance/check-out</span><span class="auth-tag protected">Protected</span><span class="ep-note">Any role</span></div>
+  <div class="ep-body"><pre><code>{ <span class="k">"branchId"</span>: <span class="s">"cld…"</span> }</code></pre></div>
+</div>
+<div class="endpoint"><div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/attendance/my</span><span class="auth-tag protected">Protected</span><span class="ep-note">Any role · Query: page, limit</span></div></div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/attendance</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN / BRANCH_MANAGER / TRAINER</span></div>
+  <div class="ep-body">Query: <code>branchId, userId, date (YYYY-MM-DD), page, limit</code></div>
+</div>
+</div>
+
+<!-- PAYMENTS -->
+<div class="card">
+<h2>7. Payments</h2>
+<div class="endpoint">
+  <div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/payments/revenue-summary</span><span class="auth-tag protected">Protected</span></div>
+  <div class="ep-body">
+  Query: <code>startDate, endDate</code> (defaults to current month)
+<pre><code>{ <span class="k">"data"</span>: { <span class="k">"totalRevenue"</span>: <span class="n">49950</span>, <span class="k">"totalTransactions"</span>: <span class="n">52</span>, <span class="k">"period"</span>: {…} } }</code></pre>
+  </div>
+</div>
+<div class="endpoint"><div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/payments</span><span class="auth-tag protected">Protected</span><span class="ep-note">Query: status, userId, method, page, limit</span></div></div>
+<div class="endpoint"><div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/payments/:id</span><span class="auth-tag protected">Protected</span></div></div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method POST">POST</span><span class="ep-path">/payments</span><span class="auth-tag protected">Protected</span><span class="ep-note">Record manual payment</span></div>
+  <div class="ep-body">
+<pre><code>{
+  <span class="k">"userId"</span>: <span class="s">"cld…"</span>,
+  <span class="k">"subscriptionId"</span>: <span class="s">"cld…"</span>,  <span class="c">// optional</span>
+  <span class="k">"amount"</span>: <span class="n">999.00</span>,
+  <span class="k">"method"</span>: <span class="s">"CASH"</span>,            <span class="c">// CASH|CARD|UPI|BANK_TRANSFER|ONLINE</span>
+  <span class="k">"notes"</span>: <span class="s">"Monthly fee"</span>,      <span class="c">// optional</span>
+  <span class="k">"transactionId"</span>: <span class="s">"TXN123"</span>   <span class="c">// optional</span>
+}</code></pre>
+  </div>
+</div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method PATCH">PATCH</span><span class="ep-path">/payments/:id/status</span><span class="auth-tag protected">Protected</span></div>
+  <div class="ep-body"><pre><code>{ <span class="k">"status"</span>: <span class="s">"COMPLETED"</span>, <span class="k">"transactionId"</span>: <span class="s">"TXN…"</span>, <span class="k">"paidAt"</span>: <span class="s">"2026-05-05T10:00:00Z"</span> }</code></pre></div>
+</div>
+</div>
+
+<!-- STATUS CODES -->
+<div class="card">
+<h2>8. HTTP Status Codes</h2>
+<table>
+<tr><th>Code</th><th>Meaning</th><th>Common Cause</th></tr>
+<tr><td><span class="pill p200">200</span></td><td>OK</td><td>Successful GET / PATCH / DELETE</td></tr>
+<tr><td><span class="pill p201">201</span></td><td>Created</td><td>Successful POST (register, create user, create sub)</td></tr>
+<tr><td><span class="pill p400">400</span></td><td>Bad Request</td><td>Validation error, freeze limit exceeded, already checked in</td></tr>
+<tr><td><span class="pill p401">401</span></td><td>Unauthorized</td><td>Missing / expired / invalid token, wrong password</td></tr>
+<tr><td><span class="pill p403">403</span></td><td>Forbidden</td><td>Insufficient role permissions</td></tr>
+<tr><td><span class="pill p404">404</span></td><td>Not Found</td><td>Resource doesn't exist or belongs to different org</td></tr>
+<tr><td><span class="pill p409">409</span></td><td>Conflict</td><td>Email / slug already registered</td></tr>
+</table>
+</div>
+
+</div><!-- end tab-api -->
+
+
+<!-- ═══════════════════════════════════════════════
+     TAB 2 — DATABASE SCHEMA
+═══════════════════════════════════════════════ -->
+<div id="tab-schema" class="tab-panel">
+
+<div class="card">
+<h2>Entity Relationship Overview</h2>
+<div class="er-wrap">
+<span class="er-model">Organization</span> <span class="er-rel">──&lt; (1:many)</span> <span class="er-model">Branch</span>            <span class="er-com">  // org has many branches</span>
+<span class="er-model">Organization</span> <span class="er-rel">──&lt; (1:many)</span> <span class="er-model">User</span>              <span class="er-com">  // org has many users</span>
+<span class="er-model">Organization</span> <span class="er-rel">──&lt; (1:many)</span> <span class="er-model">Plan</span>              <span class="er-com">  // org owns plans</span>
+<span class="er-model">Organization</span> <span class="er-rel">──&lt; (1:many)</span> <span class="er-model">Subscription</span>      <span class="er-com">  // scoped per tenant</span>
+<span class="er-model">Organization</span> <span class="er-rel">──&lt; (1:many)</span> <span class="er-model">Payment</span>           <span class="er-com">  // scoped per tenant</span>
+<span class="er-model">Branch</span>       <span class="er-rel">──&lt; (1:many)</span> <span class="er-model">User</span>              <span class="er-com">  // branch has staff/members</span>
+<span class="er-model">Branch</span>       <span class="er-rel">──&lt; (1:many)</span> <span class="er-model">Attendance</span>        <span class="er-com">  // check-ins at branch</span>
+<span class="er-model">Branch</span>       <span class="er-rel">──&lt; (1:many)</span> <span class="er-model">Subscription</span>      <span class="er-com">  // subs linked to branch</span>
+<span class="er-model">User</span>         <span class="er-rel">──&lt; (1:many)</span> <span class="er-model">Subscription</span>      <span class="er-com">  // user can have many subs</span>
+<span class="er-model">User</span>         <span class="er-rel">──&lt; (1:many)</span> <span class="er-model">Attendance</span>        <span class="er-com">  // user check-in history</span>
+<span class="er-model">User</span>         <span class="er-rel">──&lt; (1:many)</span> <span class="er-model">Payment</span>           <span class="er-com">  // user payment history</span>
+<span class="er-model">User</span>         <span class="er-rel">──&lt; (1:many)</span> <span class="er-model">RefreshToken</span>      <span class="er-com">  // multiple devices</span>
+<span class="er-model">User</span>         <span class="er-rel">──&lt; (0:many)</span> <span class="er-model">User</span>               <span class="er-com">  // self-ref: trainer → members</span>
+<span class="er-model">Plan</span>         <span class="er-rel">──&lt; (1:many)</span> <span class="er-model">Subscription</span>      <span class="er-com">  // plan used in many subs</span>
+<span class="er-model">Subscription</span> <span class="er-rel">──&lt; (1:many)</span> <span class="er-model">Payment</span>           <span class="er-com">  // payments per sub</span>
+<span class="er-model">Subscription</span> <span class="er-rel">──&lt; (1:many)</span> <span class="er-model">SubscriptionRenewalLog</span>
+</div>
+</div>
+
+<div class="card">
+<h2>Model Definitions</h2>
+<div class="schema-grid">
+
+<!-- Organization -->
+<div class="model-card">
+  <div class="model-head"><span class="icon">🏢</span> Organization</div>
+  <div class="model-body">
+    <div class="field-row"><span class="field-name">id</span><span class="field-type">String</span><span class="field-pk">PK</span><span class="field-meta">cuid(), auto-generated</span></div>
+    <div class="field-row"><span class="field-name">name</span><span class="field-type">String</span><span class="field-meta">Gym display name</span></div>
+    <div class="field-row"><span class="field-name">slug</span><span class="field-type">String</span><span class="field-meta">Unique URL-safe identifier</span></div>
+    <div class="field-row"><span class="field-name">email</span><span class="field-type">String</span><span class="field-meta">Unique contact email</span></div>
+    <div class="field-row"><span class="field-name">phone</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">address</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">logoUrl</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">isActive</span><span class="field-type">Boolean</span><span class="field-meta">default true</span></div>
+    <div class="field-row"><span class="field-name">createdAt</span><span class="field-type">DateTime</span><span class="field-meta">auto</span></div>
+    <div class="field-row"><span class="field-name">updatedAt</span><span class="field-type">DateTime</span><span class="field-meta">auto</span></div>
+  </div>
+</div>
+
+<!-- Branch -->
+<div class="model-card">
+  <div class="model-head"><span class="icon">🏪</span> Branch</div>
+  <div class="model-body">
+    <div class="field-row"><span class="field-name">id</span><span class="field-type">String</span><span class="field-pk">PK</span></div>
+    <div class="field-row"><span class="field-name">name</span><span class="field-type">String</span><span class="field-meta">Branch display name</span></div>
+    <div class="field-row"><span class="field-name">address</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">phone</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">email</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">isActive</span><span class="field-type">Boolean</span><span class="field-meta">default true</span></div>
+    <div class="field-row"><span class="field-name">organizationId</span><span class="field-type">String</span><span class="field-fk">FK</span><span class="field-meta">→ Organization</span></div>
+    <div class="field-row"><span class="field-name">createdAt</span><span class="field-type">DateTime</span><span class="field-meta">auto</span></div>
+    <div class="field-row"><span class="field-name">updatedAt</span><span class="field-type">DateTime</span><span class="field-meta">auto</span></div>
+  </div>
+</div>
+
+<!-- User -->
+<div class="model-card">
+  <div class="model-head"><span class="icon">👤</span> User</div>
+  <div class="model-body">
+    <div class="field-row"><span class="field-name">id</span><span class="field-type">String</span><span class="field-pk">PK</span></div>
+    <div class="field-row"><span class="field-name">name</span><span class="field-type">String</span></div>
+    <div class="field-row"><span class="field-name">email</span><span class="field-type">String</span><span class="field-meta">unique</span></div>
+    <div class="field-row"><span class="field-name">phone</span><span class="field-type">String?</span><span class="field-meta">unique if set</span></div>
+    <div class="field-row"><span class="field-name">passwordHash</span><span class="field-type">String</span><span class="field-meta">bcrypt hash</span></div>
+    <div class="field-row"><span class="field-name">role</span><span class="field-type">Role</span><span class="field-meta">enum (see below)</span></div>
+    <div class="field-row"><span class="field-name">isActive</span><span class="field-type">Boolean</span><span class="field-meta">default true</span></div>
+    <div class="field-row"><span class="field-name">organizationId</span><span class="field-type">String?</span><span class="field-fk">FK</span></div>
+    <div class="field-row"><span class="field-name">branchId</span><span class="field-type">String?</span><span class="field-fk">FK</span></div>
+    <div class="field-row"><span class="field-name">trainerId</span><span class="field-type">String?</span><span class="field-fk">FK</span><span class="field-meta">self-ref</span></div>
+    <div class="field-row"><span class="field-name">profilePicUrl</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">dateOfBirth</span><span class="field-type">DateTime?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">gender</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">address</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">emergencyContact</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
+  </div>
+</div>
+
+<!-- Plan -->
+<div class="model-card">
+  <div class="model-head"><span class="icon">📋</span> Plan</div>
+  <div class="model-body">
+    <div class="field-row"><span class="field-name">id</span><span class="field-type">String</span><span class="field-pk">PK</span></div>
+    <div class="field-row"><span class="field-name">name</span><span class="field-type">String</span></div>
+    <div class="field-row"><span class="field-name">description</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">price</span><span class="field-type">Float</span><span class="field-meta">plan cost</span></div>
+    <div class="field-row"><span class="field-name">billingCycle</span><span class="field-type">BillingCycle</span><span class="field-meta">enum</span></div>
+    <div class="field-row"><span class="field-name">durationDays</span><span class="field-type">Int</span><span class="field-meta">validity in days</span></div>
+    <div class="field-row"><span class="field-name">maxFreezeDays</span><span class="field-type">Int</span><span class="field-meta">default 0</span></div>
+    <div class="field-row"><span class="field-name">features</span><span class="field-type">Json?</span><span class="field-meta">array of strings</span></div>
+    <div class="field-row"><span class="field-name">isActive</span><span class="field-type">Boolean</span><span class="field-meta">default true</span></div>
+    <div class="field-row"><span class="field-name">organizationId</span><span class="field-type">String</span><span class="field-fk">FK</span></div>
+    <div class="field-row"><span class="field-name">branchId</span><span class="field-type">String?</span><span class="field-fk">FK</span><span class="field-meta">null = org-wide</span></div>
+  </div>
+</div>
+
+<!-- Subscription -->
+<div class="model-card">
+  <div class="model-head"><span class="icon">🔄</span> Subscription</div>
+  <div class="model-body">
+    <div class="field-row"><span class="field-name">id</span><span class="field-type">String</span><span class="field-pk">PK</span></div>
+    <div class="field-row"><span class="field-name">userId</span><span class="field-type">String</span><span class="field-fk">FK</span></div>
+    <div class="field-row"><span class="field-name">planId</span><span class="field-type">String</span><span class="field-fk">FK</span></div>
+    <div class="field-row"><span class="field-name">organizationId</span><span class="field-type">String</span><span class="field-fk">FK</span></div>
+    <div class="field-row"><span class="field-name">branchId</span><span class="field-type">String?</span><span class="field-fk">FK</span></div>
+    <div class="field-row"><span class="field-name">status</span><span class="field-type">SubStatus</span><span class="field-meta">enum</span></div>
+    <div class="field-row"><span class="field-name">startDate</span><span class="field-type">DateTime</span></div>
+    <div class="field-row"><span class="field-name">endDate</span><span class="field-type">DateTime</span><span class="field-meta">auto-calculated</span></div>
+    <div class="field-row"><span class="field-name">autoRenew</span><span class="field-type">Boolean</span><span class="field-meta">default true</span></div>
+    <div class="field-row"><span class="field-name">freezeStart</span><span class="field-type">DateTime?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">freezeEnd</span><span class="field-type">DateTime?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">frozenDays</span><span class="field-type">Int</span><span class="field-meta">total days frozen</span></div>
+    <div class="field-row"><span class="field-name">notes</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
+  </div>
+</div>
+
+<!-- Payment -->
+<div class="model-card">
+  <div class="model-head"><span class="icon">💳</span> Payment</div>
+  <div class="model-body">
+    <div class="field-row"><span class="field-name">id</span><span class="field-type">String</span><span class="field-pk">PK</span></div>
+    <div class="field-row"><span class="field-name">userId</span><span class="field-type">String</span><span class="field-fk">FK</span></div>
+    <div class="field-row"><span class="field-name">subscriptionId</span><span class="field-type">String?</span><span class="field-fk">FK</span></div>
+    <div class="field-row"><span class="field-name">organizationId</span><span class="field-type">String</span><span class="field-fk">FK</span></div>
+    <div class="field-row"><span class="field-name">amount</span><span class="field-type">Float</span></div>
+    <div class="field-row"><span class="field-name">status</span><span class="field-type">PayStatus</span><span class="field-meta">enum</span></div>
+    <div class="field-row"><span class="field-name">method</span><span class="field-type">PayMethod</span><span class="field-meta">enum</span></div>
+    <div class="field-row"><span class="field-name">transactionId</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">notes</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">paidAt</span><span class="field-type">DateTime?</span><span class="field-meta">set on COMPLETED</span></div>
+  </div>
+</div>
+
+<!-- Attendance -->
+<div class="model-card">
+  <div class="model-head"><span class="icon">✅</span> Attendance</div>
+  <div class="model-body">
+    <div class="field-row"><span class="field-name">id</span><span class="field-type">String</span><span class="field-pk">PK</span></div>
+    <div class="field-row"><span class="field-name">userId</span><span class="field-type">String</span><span class="field-fk">FK</span></div>
+    <div class="field-row"><span class="field-name">branchId</span><span class="field-type">String</span><span class="field-fk">FK</span></div>
+    <div class="field-row"><span class="field-name">checkInAt</span><span class="field-type">DateTime</span><span class="field-meta">auto = now()</span></div>
+    <div class="field-row"><span class="field-name">checkOutAt</span><span class="field-type">DateTime?</span><span class="field-meta">null = still inside</span></div>
+    <div class="field-row"><span class="field-name">notes</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
+    <div class="field-row"><span class="field-name">createdAt</span><span class="field-type">DateTime</span><span class="field-meta">auto</span></div>
+  </div>
+</div>
+
+<!-- RenewalLog -->
+<div class="model-card">
+  <div class="model-head"><span class="icon">📅</span> SubscriptionRenewalLog</div>
+  <div class="model-body">
+    <div class="field-row"><span class="field-name">id</span><span class="field-type">String</span><span class="field-pk">PK</span></div>
+    <div class="field-row"><span class="field-name">subscriptionId</span><span class="field-type">String</span><span class="field-fk">FK</span></div>
+    <div class="field-row"><span class="field-name">renewedAt</span><span class="field-type">DateTime</span><span class="field-meta">auto = now()</span></div>
+    <div class="field-row"><span class="field-name">previousEndDate</span><span class="field-type">DateTime</span></div>
+    <div class="field-row"><span class="field-name">newEndDate</span><span class="field-type">DateTime</span></div>
+    <div class="field-row"><span class="field-name">amount</span><span class="field-type">Float</span><span class="field-meta">charged amount</span></div>
+  </div>
+</div>
+
+</div><!-- end schema-grid -->
+</div>
+
+<div class="card">
+<h2>Enums</h2>
+<div class="enum-wrap">
+  <div class="enum-card">
+    <div class="enum-name">Role</div>
+    <span class="enum-val">SUPER_ADMIN</span><span class="enum-val">ORG_ADMIN</span><span class="enum-val">BRANCH_MANAGER</span><span class="enum-val">TRAINER</span><span class="enum-val">MEMBER</span>
+  </div>
+  <div class="enum-card">
+    <div class="enum-name">BillingCycle</div>
+    <span class="enum-val">DAILY</span><span class="enum-val">WEEKLY</span><span class="enum-val">MONTHLY</span><span class="enum-val">QUARTERLY</span><span class="enum-val">HALF_YEARLY</span><span class="enum-val">YEARLY</span>
+  </div>
+  <div class="enum-card">
+    <div class="enum-name">SubscriptionStatus</div>
+    <span class="enum-val">ACTIVE</span><span class="enum-val">EXPIRED</span><span class="enum-val">CANCELLED</span><span class="enum-val">PENDING</span><span class="enum-val">FROZEN</span>
+  </div>
+  <div class="enum-card">
+    <div class="enum-name">PaymentStatus</div>
+    <span class="enum-val">PENDING</span><span class="enum-val">COMPLETED</span><span class="enum-val">FAILED</span><span class="enum-val">REFUNDED</span>
+  </div>
+  <div class="enum-card">
+    <div class="enum-name">PaymentMethod</div>
+    <span class="enum-val">CASH</span><span class="enum-val">CARD</span><span class="enum-val">UPI</span><span class="enum-val">BANK_TRANSFER</span><span class="enum-val">ONLINE</span>
+  </div>
+</div>
+</div>
+
+</div><!-- end tab-schema -->
+
+
+<!-- ═══════════════════════════════════════════════
+     TAB 3 — ROLES & FEATURES
+═══════════════════════════════════════════════ -->
+<div id="tab-roles" class="tab-panel">
+
+<div class="card">
+<h2>Role Hierarchy</h2>
+<div style="background:#f8f9fc;border:1px solid #e8eaed;border-radius:8px;padding:20px;text-align:center;font-size:13px">
+  <div style="display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap">
+    <div style="background:#1a1a2e;color:#fff;padding:8px 18px;border-radius:6px;font-weight:700">SUPER_ADMIN<br/><span style="font-size:10px;opacity:.7">Platform owner</span></div>
+    <div style="color:#ccc;padding:0 8px;font-size:20px">›</div>
+    <div style="background:#0f3460;color:#fff;padding:8px 18px;border-radius:6px;font-weight:700">ORG_ADMIN<br/><span style="font-size:10px;opacity:.7">Gym owner</span></div>
+    <div style="color:#ccc;padding:0 8px;font-size:20px">›</div>
+    <div style="background:#533483;color:#fff;padding:8px 18px;border-radius:6px;font-weight:700">BRANCH_MANAGER<br/><span style="font-size:10px;opacity:.7">Branch head</span></div>
+    <div style="color:#ccc;padding:0 8px;font-size:20px">›</div>
+    <div style="background:#e94560;color:#fff;padding:8px 18px;border-radius:6px;font-weight:700">TRAINER<br/><span style="font-size:10px;opacity:.7">Fitness trainer</span></div>
+    <div style="color:#ccc;padding:0 8px;font-size:20px">›</div>
+    <div style="background:#1976d2;color:#fff;padding:8px 18px;border-radius:6px;font-weight:700">MEMBER<br/><span style="font-size:10px;opacity:.7">Gym member</span></div>
+  </div>
+</div>
+</div>
+
+<div class="card">
+<h2>Features by Role</h2>
+<div class="feature-grid">
+
+<div class="feature-card fc-sa">
+  <div class="fc-head">👑 SUPER_ADMIN — Platform Owner</div>
+  <div class="fc-body">
+    <div class="feature-item"><span class="fi-icon">🏢</span>Create, view, update, deactivate any organization</div>
+    <div class="feature-item"><span class="fi-icon">📊</span>View all organizations and global stats</div>
+    <div class="feature-item"><span class="fi-icon">🔑</span>Full access to all endpoints across all orgs</div>
+    <div class="feature-item"><span class="fi-icon">⚙️</span>Platform-level configuration</div>
+    <div class="feature-item"><span class="fi-icon">🗂️</span>All features of lower roles included</div>
+  </div>
+</div>
+
+<div class="feature-card fc-oa">
+  <div class="fc-head">🏋️ ORG_ADMIN — Gym Owner</div>
+  <div class="fc-body">
+    <div class="feature-item"><span class="fi-icon">🏪</span>Create, manage, deactivate branches</div>
+    <div class="feature-item"><span class="fi-icon">👥</span>Add all staff types (managers, trainers, members)</div>
+    <div class="feature-item"><span class="fi-icon">📋</span>Create, update, deactivate membership plans</div>
+    <div class="feature-item"><span class="fi-icon">🔄</span>Manage all subscriptions (cancel, freeze, renew)</div>
+    <div class="feature-item"><span class="fi-icon">💳</span>View all payments, update payment status</div>
+    <div class="feature-item"><span class="fi-icon">📈</span>View revenue summary reports</div>
+    <div class="feature-item"><span class="fi-icon">📅</span>View all attendance records across branches</div>
+    <div class="feature-item"><span class="fi-icon">👤</span>Deactivate any user in the organization</div>
+  </div>
+</div>
+
+<div class="feature-card fc-bm">
+  <div class="fc-head">🗂️ BRANCH_MANAGER — Branch Head</div>
+  <div class="fc-body">
+    <div class="feature-item"><span class="fi-icon">👥</span>Add members and trainers to the branch</div>
+    <div class="feature-item"><span class="fi-icon">📋</span>View all plans (cannot create/delete)</div>
+    <div class="feature-item"><span class="fi-icon">🔄</span>Create new subscriptions for members</div>
+    <div class="feature-item"><span class="fi-icon">⏸️</span>Cancel or freeze member subscriptions</div>
+    <div class="feature-item"><span class="fi-icon">💳</span>Record and update payment status</div>
+    <div class="feature-item"><span class="fi-icon">📈</span>View revenue summary for own branch</div>
+    <div class="feature-item"><span class="fi-icon">📅</span>View attendance records for own branch</div>
+    <div class="feature-item"><span class="fi-icon">✅</span>Mark attendance for any user</div>
+  </div>
+</div>
+
+<div class="feature-card fc-tr">
+  <div class="fc-head">💪 TRAINER — Fitness Trainer</div>
+  <div class="fc-body">
+    <div class="feature-item"><span class="fi-icon">📋</span>View membership plans</div>
+    <div class="feature-item"><span class="fi-icon">👥</span>View assigned members list</div>
+    <div class="feature-item"><span class="fi-icon">📅</span>View attendance records for the branch</div>
+    <div class="feature-item"><span class="fi-icon">✅</span>Check in / check out to gym</div>
+    <div class="feature-item"><span class="fi-icon">📜</span>View own attendance history</div>
+    <div class="feature-item"><span class="fi-icon">🔒</span>Cannot manage plans, payments, or subscriptions</div>
+  </div>
+</div>
+
+<div class="feature-card fc-mb">
+  <div class="fc-head">🏃 MEMBER — Gym Member</div>
+  <div class="fc-body">
+    <div class="feature-item"><span class="fi-icon">📋</span>View all available membership plans</div>
+    <div class="feature-item"><span class="fi-icon">🔄</span>View own active/past subscriptions</div>
+    <div class="feature-item"><span class="fi-icon">✅</span>Check in / check out to gym</div>
+    <div class="feature-item"><span class="fi-icon">📜</span>View own attendance history</div>
+    <div class="feature-item"><span class="fi-icon">🏪</span>View branch list</div>
+    <div class="feature-item"><span class="fi-icon">👤</span>View own profile (<code>GET /auth/me</code>)</div>
+    <div class="feature-item"><span class="fi-icon">🔒</span>No access to other members' data</div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<div class="card">
+<h2>Full Permission Matrix</h2>
+<table>
+<tr><th>Action</th><th><span class="role r-sa">SA</span></th><th><span class="role r-oa">OA</span></th><th><span class="role r-bm">BM</span></th><th><span class="role r-tr">TR</span></th><th><span class="role r-mb">MB</span></th></tr>
+<tr><td>Login / Refresh / Logout</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td></tr>
+<tr><td>Manage Organizations (CRUD)</td><td class="tick">✔</td><td class="part">own</td><td class="cross">✘</td><td class="cross">✘</td><td class="cross">✘</td></tr>
+<tr><td>Create / Delete Branches</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td><td class="cross">✘</td></tr>
+<tr><td>View Branches</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td></tr>
+<tr><td>Add Users (members/trainers)</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td></tr>
+<tr><td>Deactivate Users</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td><td class="cross">✘</td></tr>
+<tr><td>Create / Delete Plans</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td><td class="cross">✘</td></tr>
+<tr><td>View Plans</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td></tr>
+<tr><td>Create Subscriptions</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td></tr>
+<tr><td>Cancel / Freeze Subscriptions</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td></tr>
+<tr><td>View Own Subscriptions</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td></tr>
+<tr><td>Check In / Check Out</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td></tr>
+<tr><td>View All Attendance</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="part">own</td></tr>
+<tr><td>Record Payments</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td></tr>
+<tr><td>View Revenue Reports</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td></tr>
+</table>
+<p style="font-size:11px;color:#5f6368;margin-top:8px"><span class="role r-sa">SA</span> SUPER_ADMIN &nbsp; <span class="role r-oa">OA</span> ORG_ADMIN &nbsp; <span class="role r-bm">BM</span> BRANCH_MANAGER &nbsp; <span class="role r-tr">TR</span> TRAINER &nbsp; <span class="role r-mb">MB</span> MEMBER &nbsp; <span style="color:#b06000;font-weight:700">own</span> = own records only</p>
+</div>
+
+</div><!-- end tab-roles -->
+
+
+<!-- ═══════════════════════════════════════════════
+     TAB 4 — MOBILE APP GUIDE
+═══════════════════════════════════════════════ -->
+<div id="tab-guide" class="tab-panel">
+
+<div class="card">
+<h2>Token Management (Critical)</h2>
+<div class="cols2">
+<div>
+<h3>Storage Strategy</h3>
+<table>
+<tr><th>Platform</th><th>Store Where</th></tr>
+<tr><td>Android</td><td>EncryptedSharedPreferences</td></tr>
+<tr><td>iOS</td><td>Keychain</td></tr>
+<tr><td>Flutter</td><td>flutter_secure_storage</td></tr>
+<tr><td>React Native</td><td>react-native-keychain</td></tr>
+</table>
+</div>
+<div>
+<h3>Refresh Flow</h3>
+<pre><code><span class="c">// On every API call:</span>
+<span class="b">if</span> (accessToken expired) {
+  newTokens = <span class="s">POST /auth/refresh</span>
+  store(newTokens)
+  retry original request
+}
+<span class="b">if</span> (refreshToken expired) {
+  redirect to login screen
+}</code></pre>
+</div>
+</div>
+<div class="warn">Never store tokens in localStorage, AsyncStorage (unencrypted), or plain SharedPreferences. Both tokens must be cleared on logout.</div>
+</div>
+
+<!-- MEMBER FLOW -->
+<div class="card">
+<h2>📱 Member App Flow</h2>
+<div class="flow-wrap">
+
+<div class="flow-step">
+  <div class="step-num">1</div>
+  <div class="step-title">Login</div>
+<pre><code>POST /auth/login
+→ save accessToken + refreshToken
+→ save user.id, user.role, user.organizationId, user.branchId</code></pre>
+</div>
+
+<div class="flow-step">
+  <div class="step-num">2</div>
+  <div class="step-title">Load Home Screen</div>
+<pre><code><span class="c">// Run in parallel:</span>
+GET /subscriptions/my     → show active subscription card
+GET /attendance/my        → show recent check-in history
+GET /plans                → show available plans</code></pre>
+</div>
+
+<div class="flow-step">
+  <div class="step-num">3</div>
+  <div class="step-title">Check In to Gym</div>
+<pre><code>POST /attendance/check-in
+Body: { "branchId": "&lt;from saved profile&gt;" }
+
+<span class="c">// Show green "You're checked in!" card
+// Store checkInAt time locally to show duration</span></code></pre>
+</div>
+
+<div class="flow-step">
+  <div class="step-num">4</div>
+  <div class="step-title">Check Out</div>
+<pre><code>POST /attendance/check-out
+Body: { "branchId": "&lt;branchId&gt;" }
+
+<span class="c">// Show session duration (checkOutAt - checkInAt)</span></code></pre>
+</div>
+
+<div class="flow-step">
+  <div class="step-num">5</div>
+  <div class="step-title">View Subscription Status</div>
+<pre><code>GET /subscriptions/my
+<span class="c">// Filter by status === "ACTIVE"
+// Show: plan name, endDate, autoRenew toggle, frozenDays left</span></code></pre>
+</div>
+
+<div class="flow-step">
+  <div class="step-num">6</div>
+  <div class="step-title">View Attendance History</div>
+<pre><code>GET /attendance/my?page=1&amp;limit=20
+<span class="c">// Show list with checkInAt, checkOutAt, branchName
+// Calculate duration if checkOutAt exists</span></code></pre>
+</div>
+
+</div>
+</div>
+
+<!-- ADMIN FLOW -->
+<div class="card">
+<h2>🖥️ Admin / Manager App Flow</h2>
+<div class="flow-wrap">
+
+<div class="flow-step">
+  <div class="step-num">1</div>
+  <div class="step-title">Setup — First Time Only</div>
+<pre><code><span class="c">// 1. Register org + admin account</span>
+POST /auth/register
+
+<span class="c">// 2. Create branches</span>
+POST /branches  →  save branchId
+
+<span class="c">// 3. Create membership plans</span>
+POST /plans  →  save planId</code></pre>
+</div>
+
+<div class="flow-step">
+  <div class="step-num">2</div>
+  <div class="step-title">Dashboard — Load Stats</div>
+<pre><code><span class="c">// Run in parallel:</span>
+GET /users?isActive=true&amp;role=MEMBER         → total members
+GET /subscriptions?status=ACTIVE             → active subscriptions
+GET /payments/revenue-summary                → current month revenue
+GET /attendance?branchId=...&amp;date=today      → today's check-ins</code></pre>
+</div>
+
+<div class="flow-step">
+  <div class="step-num">3</div>
+  <div class="step-title">Add New Member</div>
+<pre><code><span class="c">// Step 1: Create user account</span>
+POST /users
+Body: { name, email, password, phone, role:"MEMBER", branchId }
+→ save userId
+
+<span class="c">// Step 2: Create subscription</span>
+POST /subscriptions
+Body: { userId, planId, startDate, autoRenew: true }
+→ save subscriptionId
+
+<span class="c">// Step 3: Record payment</span>
+PATCH /payments/:id/status
+Body: { status:"COMPLETED", method:"CASH" }</code></pre>
+</div>
+
+<div class="flow-step">
+  <div class="step-num">4</div>
+  <div class="step-title">Renew / Manage Subscription</div>
+<pre><code><span class="c">// View member's subscription</span>
+GET /users/:userId  →  shows latestSubscription
+
+<span class="c">// If expired, create new subscription</span>
+POST /subscriptions  →  new sub + pending payment
+
+<span class="c">// Freeze subscription (member going on vacation)</span>
+PATCH /subscriptions/:id/freeze
+Body: { freezeStart: "2026-06-01", freezeEnd: "2026-06-10" }
+
+<span class="c">// Cancel subscription</span>
+PATCH /subscriptions/:id/cancel</code></pre>
+</div>
+
+<div class="flow-step">
+  <div class="step-num">5</div>
+  <div class="step-title">Collect Payment</div>
+<pre><code><span class="c">// List pending payments</span>
+GET /payments?status=PENDING
+
+<span class="c">// Mark as collected</span>
+PATCH /payments/:id/status
+Body: { status: "COMPLETED", method: "CASH" }</code></pre>
+</div>
+
+<div class="flow-step">
+  <div class="step-num">6</div>
+  <div class="step-title">Monthly Revenue Report</div>
+<pre><code>GET /payments/revenue-summary?startDate=2026-05-01&amp;endDate=2026-05-31
+→ { totalRevenue, totalTransactions, period }</code></pre>
+</div>
+
+</div>
+</div>
+
+<!-- ERROR HANDLING -->
+<div class="card">
+<h2>Error Handling Guide</h2>
+<table>
+<tr><th>Status</th><th>When It Happens</th><th>What To Do in App</th></tr>
+<tr><td><span class="pill p401">401</span> Token expired</td><td>accessToken lifetime exceeded</td><td>Call <code>POST /auth/refresh</code> → retry</td></tr>
+<tr><td><span class="pill p401">401</span> Refresh expired</td><td>refreshToken lifetime exceeded</td><td>Clear all tokens → redirect to login</td></tr>
+<tr><td><span class="pill p401">401</span> Invalid credentials</td><td>Wrong email or password</td><td>Show "Invalid email or password"</td></tr>
+<tr><td><span class="pill p403">403</span> Forbidden</td><td>Role doesn't have permission</td><td>Show "Access denied" — hide that UI element</td></tr>
+<tr><td><span class="pill p400">400</span> Validation failed</td><td>Missing/invalid fields</td><td>Read <code>errors[]</code> array — highlight fields</td></tr>
+<tr><td><span class="pill p409">409</span> Conflict</td><td>Email already registered</td><td>Show "Email already in use"</td></tr>
+<tr><td><span class="pill p400">400</span> Already checked in</td><td>Double check-in attempt</td><td>Show check-out button instead</td></tr>
+<tr><td><span class="pill p400">400</span> Freeze limit exceeded</td><td>maxFreezeDays exceeded</td><td>Show remaining freeze days</td></tr>
+</table>
+</div>
+
+<!-- RECOMMENDED SCREENS -->
+<div class="card">
+<h2>Recommended App Screens</h2>
+<div class="cols2">
+<div>
+<h3>Member App Screens</h3>
+<table>
+<tr><th>Screen</th><th>APIs Used</th></tr>
+<tr><td>Login</td><td>POST /auth/login</td></tr>
+<tr><td>Home / Dashboard</td><td>GET /subscriptions/my, /attendance/my</td></tr>
+<tr><td>Check In/Out</td><td>POST /attendance/check-in, /check-out</td></tr>
+<tr><td>My Subscription</td><td>GET /subscriptions/my</td></tr>
+<tr><td>Attendance History</td><td>GET /attendance/my</td></tr>
+<tr><td>Plans (Browse)</td><td>GET /plans</td></tr>
+<tr><td>Profile</td><td>GET /auth/me, GET /users/:id</td></tr>
+</table>
+</div>
+<div>
+<h3>Admin App Screens</h3>
+<table>
+<tr><th>Screen</th><th>APIs Used</th></tr>
+<tr><td>Dashboard</td><td>users, subscriptions, payments, attendance</td></tr>
+<tr><td>Members List</td><td>GET /users?role=MEMBER</td></tr>
+<tr><td>Add Member</td><td>POST /users + /subscriptions</td></tr>
+<tr><td>Member Detail</td><td>GET /users/:id + /subscriptions/:id</td></tr>
+<tr><td>Subscriptions</td><td>GET /subscriptions</td></tr>
+<tr><td>Payments</td><td>GET /payments, PATCH /payments/:id/status</td></tr>
+<tr><td>Attendance Today</td><td>GET /attendance?date=today</td></tr>
+<tr><td>Revenue Report</td><td>GET /payments/revenue-summary</td></tr>
+<tr><td>Plans Manage</td><td>CRUD /plans</td></tr>
+<tr><td>Branches</td><td>CRUD /branches</td></tr>
+</table>
+</div>
+</div>
+
+<div style="margin-top:20px">
+<h3><span class="role r-tr">TR</span>&nbsp; Trainer App Screens</h3>
+<div class="info" style="margin-bottom:12px">Trainer accounts are automatically scoped — <code>GET /users</code> returns only members assigned to the logged-in trainer (<code>trainerId = me</code>). No extra query params needed.</div>
+<table>
+<tr><th>Screen</th><th>APIs Used</th><th>Notes</th></tr>
+<tr><td><strong>Login</strong></td><td>POST /auth/login</td><td>Same flow as all roles</td></tr>
+<tr><td><strong>Dashboard</strong></td><td>GET /users<br/>GET /attendance?date=today&amp;branchId=&lt;id&gt;</td><td>Show assigned member count + today's branch check-ins</td></tr>
+<tr><td><strong>My Members</strong></td><td>GET /users</td><td>Auto-filtered to trainer's own members; supports pagination</td></tr>
+<tr><td><strong>Member Profile</strong></td><td>GET /users/:id<br/>GET /subscriptions/:id</td><td>View member details + active subscription status (read-only)</td></tr>
+<tr><td><strong>Member Attendance</strong></td><td>GET /attendance?userId=&lt;id&gt;&amp;branchId=&lt;id&gt;</td><td>Individual member's check-in history</td></tr>
+<tr><td><strong>Branch Attendance Today</strong></td><td>GET /attendance?date=YYYY-MM-DD&amp;branchId=&lt;id&gt;</td><td>All check-ins for the branch today (live view)</td></tr>
+<tr><td><strong>My Attendance</strong></td><td>GET /attendance/my</td><td>Trainer's own check-in history</td></tr>
+<tr><td><strong>Check In / Out</strong></td><td>POST /attendance/check-in<br/>POST /attendance/check-out</td><td>Trainer marks their own gym entry/exit</td></tr>
+<tr><td><strong>Plans (Browse)</strong></td><td>GET /plans</td><td>Read-only; useful to answer member queries about plans</td></tr>
+<tr><td><strong>Profile</strong></td><td>GET /auth/me</td><td>View own profile</td></tr>
+</table>
+</div>
+
+<div style="margin-top:16px">
+<h3>Trainer — Key Restrictions</h3>
+<table>
+<tr><th>Action</th><th>Access</th><th>Reason</th></tr>
+<tr><td>View assigned members</td><td class="tick">✔ Auto-scoped</td><td>GET /users returns only members with trainerId = own ID</td></tr>
+<tr><td>View member subscription</td><td class="tick">✔ Read-only</td><td>GET /subscriptions/:id allowed (not list)</td></tr>
+<tr><td>View branch attendance</td><td class="tick">✔</td><td>GET /attendance scoped by branchId</td></tr>
+<tr><td>Own check-in / check-out</td><td class="tick">✔</td><td>POST /attendance/check-in, /check-out</td></tr>
+<tr><td>Create / cancel subscriptions</td><td class="cross">✘</td><td>Financial operations restricted to managers</td></tr>
+<tr><td>Record payments</td><td class="cross">✘</td><td>Financial operations restricted to managers</td></tr>
+<tr><td>View non-assigned members</td><td class="cross">✘</td><td>403 Forbidden — trainerId mismatch check</td></tr>
+<tr><td>Create / delete plans or branches</td><td class="cross">✘</td><td>Admin-only operations</td></tr>
+</table>
+</div>
+
+</div>
+
+<div class="card">
+<h2>Auto-Renewal — How It Works</h2>
+<div class="info">The server runs a cron job <strong>every day at 00:05 AM</strong>. No action needed from the mobile app.</div>
+<table>
+<tr><th>Step</th><th>What Happens</th></tr>
+<tr><td>1. Cron fires</td><td>Finds all subscriptions with <code>status=ACTIVE</code>, <code>autoRenew=true</code>, and <code>endDate ≤ now</code></td></tr>
+<tr><td>2. Extend end date</td><td>Adds <code>plan.durationDays</code> to current <code>endDate</code></td></tr>
+<tr><td>3. Log renewal</td><td>Creates <code>SubscriptionRenewalLog</code> entry with old/new dates and amount</td></tr>
+<tr><td>4. Create payment</td><td>Creates a <code>PENDING</code> payment — staff must manually mark it <code>COMPLETED</code></td></tr>
+</table>
+<div class="warn">The app should show a notification / badge for <strong>pending payments</strong> so staff can collect fees on renewal day.</div>
+</div>
+
+</div><!-- end tab-guide -->
+
+<div class="footer">
+  Gym SaaS API v1.0 &nbsp;·&nbsp; Node.js + Express 5 + Prisma 7 &nbsp;·&nbsp; 5 Roles · 8 Modules · Auto-renewal
+</div>
+
+</div><!-- content-wrap -->
+</div><!-- padding wrapper -->
+
+<script>
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

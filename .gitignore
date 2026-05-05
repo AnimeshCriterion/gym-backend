@@ -1,0 +1,23 @@
+node_modules/
+.env
+.env.*
+!.env.example
+
+# Claude Code local config
+.claude/
+
+# SQLite local database
+*.db
+*.db-shm
+*.db-wal
+
+# Prisma generated
+/generated/prisma
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
