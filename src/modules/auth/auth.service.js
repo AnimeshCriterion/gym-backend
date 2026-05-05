@@ -23,11 +23,17 @@ const sanitize = ({ passwordHash, ...user }) => user;
 const storeRefresh = (userId, refreshToken) =>
   repo.saveRefreshToken({ token: refreshToken, userId, expiresAt: new Date(Date.now() + REFRESH_MS) });
 
+const TRIAL_DAYS = 7;
+
 const registerOrganization = async (data) => {
   const passwordHash = await bcrypt.hash(data.adminPassword, 12);
+  const trialExpiry = new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
 
   const { organization, user } = await repo.createOrgWithAdmin({
-    org: { name: data.orgName, slug: data.orgSlug, email: data.orgEmail, phone: data.orgPhone },
+    org: {
+      name: data.orgName, slug: data.orgSlug, email: data.orgEmail, phone: data.orgPhone,
+      platformPlan: 'TRIAL', platformExpiresAt: trialExpiry,
+    },
     admin: { name: data.adminName, email: data.adminEmail, phone: data.adminPhone, passwordHash, role: 'ORG_ADMIN' },
   });
 

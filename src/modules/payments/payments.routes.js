@@ -2,9 +2,11 @@ const { Router } = require('express');
 const controller = require('./payments.controller');
 const { authenticate } = require('../../common/middleware/auth.middleware');
 const { authorize } = require('../../common/middleware/role.middleware');
+const { requireActivePlatform } = require('../../common/middleware/platform.middleware');
 
 const router = Router();
 router.use(authenticate);
+router.use(requireActivePlatform);
 router.use(authorize('ORG_ADMIN', 'BRANCH_MANAGER'));
 
 router.get('/revenue-summary', controller.getRevenueSummary);

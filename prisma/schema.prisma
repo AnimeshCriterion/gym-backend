@@ -14,6 +14,12 @@ enum Role {
   MEMBER
 }
 
+enum PlatformPlan {
+  TRIAL
+  BASIC
+  PRO
+}
+
 enum BillingCycle {
   DAILY
   WEEKLY
@@ -47,16 +53,18 @@ enum PaymentMethod {
 }
 
 model Organization {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  email     String   @unique
-  phone     String?
-  address   String?
-  logoUrl   String?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String       @id @default(cuid())
+  name              String
+  slug              String       @unique
+  email             String       @unique
+  phone             String?
+  address           String?
+  logoUrl           String?
+  isActive          Boolean      @default(true)
+  platformPlan      PlatformPlan @default(TRIAL)
+  platformExpiresAt DateTime?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
   branches      Branch[]
   users         User[]

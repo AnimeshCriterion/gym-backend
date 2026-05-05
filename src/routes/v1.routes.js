@@ -3,6 +3,7 @@ const { Router } = require('express');
 const router = Router();
 
 router.use('/auth', require('../modules/auth/auth.routes'));
+router.use('/platform', require('../modules/platform/platform.routes'));
 router.use('/organizations', require('../modules/organization/organization.routes'));
 router.use('/branches', require('../modules/branches/branches.routes'));
 router.use('/users', require('../modules/users/users.routes'));
