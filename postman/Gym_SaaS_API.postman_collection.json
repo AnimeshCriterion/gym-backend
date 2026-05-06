@@ -1,0 +1,762 @@
+{
+  "info": {
+    "_postman_id": "gym-saas-api-v1",
+    "name": "🏋️ Gym SaaS API",
+    "description": "Complete API collection for Gym SaaS backend.\n\n**Setup:**\n1. Import both the collection and the environment file.\n2. Select the **Gym SaaS — Local** environment.\n3. Run **Register** or **Login** — tokens are saved automatically.\n4. All subsequent requests use `{{access_token}}` from the environment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000/api/v1", "type": "string" }
+  ],
+  "item": [
+
+    {
+      "name": "🔑 Auth",
+      "item": [
+
+        {
+          "name": "Register Organization",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "var json = pm.response.json();",
+            "if (json.success && json.data) {",
+            "    pm.environment.set('access_token',  json.data.accessToken);",
+            "    pm.environment.set('refresh_token', json.data.refreshToken);",
+            "    pm.environment.set('org_id',        json.data.organization.id);",
+            "    console.log('✅ Tokens + org_id saved');",
+            "}"
+          ]}}],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"orgName\": \"FitLife Gym\",\n  \"orgSlug\": \"fitlife-gym\",\n  \"orgEmail\": \"info@fitlife.com\",\n  \"orgPhone\": \"9876543210\",\n  \"adminName\": \"Animesh\",\n  \"adminEmail\": \"animesh@fitlife.com\",\n  \"adminPassword\": \"password123\",\n  \"adminPhone\": \"9876543211\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/register" },
+            "description": "Registers a new gym organization + creates the first ORG_ADMIN account. Starts a 7-day free trial automatically."
+          }
+        },
+
+        {
+          "name": "Login",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "var json = pm.response.json();",
+            "if (json.success && json.data) {",
+            "    pm.environment.set('access_token',  json.data.accessToken);",
+            "    pm.environment.set('refresh_token', json.data.refreshToken);",
+            "    if (json.data.user.organizationId) pm.environment.set('org_id',    json.data.user.organizationId);",
+            "    if (json.data.user.branchId)       pm.environment.set('branch_id', json.data.user.branchId);",
+            "    console.log('✅ Tokens saved | role: ' + json.data.user.role);",
+            "}"
+          ]}}],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"email\": \"gymadmin@fitzone.com\",\n  \"password\": \"admin@123\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/login" },
+            "description": "Demo seed credentials:\n- Gym Admin: gymadmin@fitzone.com / admin@123\n- Member (with sub): john@fitzone.com / member@123\n- Member (no sub): jane@fitzone.com / member@123"
+          }
+        },
+
+        {
+          "name": "Refresh Token",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "var json = pm.response.json();",
+            "if (json.success && json.data) {",
+            "    pm.environment.set('access_token',  json.data.accessToken);",
+            "    pm.environment.set('refresh_token', json.data.refreshToken);",
+            "    console.log('✅ Tokens rotated');",
+            "}"
+          ]}}],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/refresh" }
+          }
+        },
+
+        {
+          "name": "Logout",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/logout" }
+          }
+        },
+
+        {
+          "name": "Get Me (Current User)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/auth/me" },
+            "description": "Returns fresh user data from DB (not just JWT payload)."
+          }
+        },
+
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"phone\": \"9876543210\",\n  \"gender\": \"Male\",\n  \"address\": \"123 New Street, Mumbai\",\n  \"emergencyContact\": \"9876543211\",\n  \"dateOfBirth\": \"1995-06-15\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/me" },
+            "description": "Any role can update their own profile. Cannot change email or role."
+          }
+        },
+
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"currentPassword\": \"admin@123\",\n  \"newPassword\": \"newpassword123\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/auth/change-password" },
+            "description": "Invalidates all refresh tokens on all devices. App should redirect to login after success."
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "🌐 Platform",
+      "item": [
+
+        {
+          "name": "Get Platform Plans",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/platform/plans" },
+            "description": "Public endpoint. Returns TRIAL, BASIC, and PRO plan details with pricing."
+          }
+        },
+
+        {
+          "name": "Get Platform Status",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/platform/status" },
+            "description": "ORG_ADMIN only. Returns current plan, expiry date, and days remaining."
+          }
+        },
+
+        {
+          "name": "Subscribe / Upgrade Plan",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"plan\": \"BASIC\",\n  \"transactionId\": \"TXN123456\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/platform/subscribe" },
+            "description": "ORG_ADMIN only. plan: BASIC | PRO. Early renewal stacks on current expiry."
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "🏢 Organization",
+      "item": [
+
+        {
+          "name": "Get All Organizations",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/organizations" },
+            "description": "SUPER_ADMIN only."
+          }
+        },
+
+        {
+          "name": "Get Organization by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/organizations/{{org_id}}" },
+            "description": "SUPER_ADMIN or ORG_ADMIN (own org only)."
+          }
+        },
+
+        {
+          "name": "Update Organization",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"name\": \"FitLife Gym Updated\",\n  \"phone\": \"9876543210\",\n  \"address\": \"456 Fitness Road, Mumbai\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/organizations/{{org_id}}" }
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "🏪 Branches",
+      "item": [
+
+        {
+          "name": "Get All Branches",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/branches" },
+            "description": "All roles."
+          }
+        },
+
+        {
+          "name": "Get Branch by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/branches/{{branch_id}}" }
+          }
+        },
+
+        {
+          "name": "Create Branch",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "var json = pm.response.json();",
+            "if (json.success && json.data) {",
+            "    pm.environment.set('branch_id', json.data.id);",
+            "    console.log('✅ branch_id saved: ' + json.data.id);",
+            "}"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"name\": \"Downtown Branch\",\n  \"address\": \"789 Downtown Street, Mumbai\",\n  \"phone\": \"9876543212\",\n  \"email\": \"downtown@fitlife.com\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/branches" },
+            "description": "ORG_ADMIN only."
+          }
+        },
+
+        {
+          "name": "Update Branch",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"name\": \"Downtown Branch Updated\",\n  \"phone\": \"9876543213\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/branches/{{branch_id}}" }
+          }
+        },
+
+        {
+          "name": "Delete Branch",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/branches/{{branch_id}}" },
+            "description": "ORG_ADMIN only. Soft delete (sets isActive = false)."
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "👥 Users",
+      "item": [
+
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/users?role=MEMBER&branchId={{branch_id}}&isActive=true&page=1&limit=20",
+              "query": [
+                { "key": "role",      "value": "MEMBER",           "description": "MEMBER | TRAINER | BRANCH_MANAGER", "disabled": false },
+                { "key": "branchId",  "value": "{{branch_id}}",    "disabled": true },
+                { "key": "isActive",  "value": "true",             "disabled": true },
+                { "key": "trainerId", "value": "{{user_id}}",      "description": "Filter by assigned trainer ID", "disabled": true },
+                { "key": "page",      "value": "1" },
+                { "key": "limit",     "value": "20" }
+              ]
+            },
+            "description": "ORG_ADMIN / BRANCH_MANAGER / TRAINER.\nTRAINER role is auto-scoped to their assigned members only."
+          }
+        },
+
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/users/{{user_id}}" },
+            "description": "Returns user + branch + latest subscription."
+          }
+        },
+
+        {
+          "name": "Create Member",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "var json = pm.response.json();",
+            "if (json.success && json.data) {",
+            "    pm.environment.set('user_id', json.data.id);",
+            "    console.log('✅ user_id saved: ' + json.data.id);",
+            "}"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"name\": \"Rahul Sharma\",\n  \"email\": \"rahul@example.com\",\n  \"password\": \"pass1234\",\n  \"phone\": \"9876543220\",\n  \"role\": \"MEMBER\",\n  \"branchId\": \"{{branch_id}}\",\n  \"gender\": \"Male\",\n  \"dateOfBirth\": \"1995-06-15\",\n  \"address\": \"123 MG Road, Mumbai\",\n  \"emergencyContact\": \"9876543221\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/users" },
+            "description": "ORG_ADMIN / BRANCH_MANAGER. role: MEMBER | TRAINER | BRANCH_MANAGER"
+          }
+        },
+
+        {
+          "name": "Create Trainer",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "var json = pm.response.json();",
+            "if (json.success && json.data) {",
+            "    pm.environment.set('user_id', json.data.id);",
+            "    console.log('✅ user_id (trainer) saved: ' + json.data.id);",
+            "}"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"name\": \"Priya Trainer\",\n  \"email\": \"priya@example.com\",\n  \"password\": \"pass1234\",\n  \"phone\": \"9876543230\",\n  \"role\": \"TRAINER\",\n  \"branchId\": \"{{branch_id}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/users" }
+          }
+        },
+
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"name\": \"Rahul Sharma Updated\",\n  \"phone\": \"9876543222\",\n  \"address\": \"456 New Road, Mumbai\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/users/{{user_id}}" }
+          }
+        },
+
+        {
+          "name": "Assign Trainer to Member",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"trainerId\": \"{{user_id}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/users/{{user_id}}" },
+            "description": "Pass the trainer's user ID as trainerId to assign to a member."
+          }
+        },
+
+        {
+          "name": "Deactivate User",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/users/{{user_id}}" },
+            "description": "ORG_ADMIN only. Soft delete (sets isActive = false)."
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "📋 Plans",
+      "item": [
+
+        {
+          "name": "Get All Plans",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/plans?isActive=true&branchId={{branch_id}}&page=1&limit=20",
+              "query": [
+                { "key": "isActive",  "value": "true" },
+                { "key": "branchId",  "value": "{{branch_id}}", "disabled": true },
+                { "key": "page",      "value": "1" },
+                { "key": "limit",     "value": "20" }
+              ]
+            },
+            "description": "All roles."
+          }
+        },
+
+        {
+          "name": "Get Plan by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/plans/{{plan_id}}" }
+          }
+        },
+
+        {
+          "name": "Create Plan",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "var json = pm.response.json();",
+            "if (json.success && json.data) {",
+            "    pm.environment.set('plan_id', json.data.id);",
+            "    console.log('✅ plan_id saved: ' + json.data.id);",
+            "}"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"name\": \"Monthly Basic\",\n  \"description\": \"Full gym access for 30 days\",\n  \"price\": 999,\n  \"billingCycle\": \"MONTHLY\",\n  \"durationDays\": 30,\n  \"maxFreezeDays\": 5,\n  \"features\": [\"Gym Access\", \"Locker\", \"Basic Equipment\"]\n}"
+            },
+            "url": { "raw": "{{base_url}}/plans" },
+            "description": "ORG_ADMIN only. billingCycle: DAILY | WEEKLY | MONTHLY | QUARTERLY | HALF_YEARLY | YEARLY"
+          }
+        },
+
+        {
+          "name": "Update Plan",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"price\": 1099,\n  \"description\": \"Updated plan description\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/plans/{{plan_id}}" }
+          }
+        },
+
+        {
+          "name": "Delete Plan",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/plans/{{plan_id}}" },
+            "description": "ORG_ADMIN only. Soft delete."
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "🔄 Subscriptions",
+      "item": [
+
+        {
+          "name": "Get My Subscriptions",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/subscriptions/my" },
+            "description": "Any role — returns caller's own subscriptions."
+          }
+        },
+
+        {
+          "name": "Get All Subscriptions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/subscriptions?status=ACTIVE&userId={{user_id}}&branchId={{branch_id}}&page=1&limit=20",
+              "query": [
+                { "key": "status",   "value": "ACTIVE",          "description": "ACTIVE | EXPIRED | CANCELLED | PENDING | FROZEN", "disabled": false },
+                { "key": "userId",   "value": "{{user_id}}",     "disabled": true },
+                { "key": "branchId", "value": "{{branch_id}}",   "disabled": true },
+                { "key": "page",     "value": "1" },
+                { "key": "limit",    "value": "20" }
+              ]
+            },
+            "description": "ORG_ADMIN / BRANCH_MANAGER."
+          }
+        },
+
+        {
+          "name": "Get Subscription by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/subscriptions/{{subscription_id}}" },
+            "description": "ORG_ADMIN / BRANCH_MANAGER / TRAINER (read-only). Includes renewal logs and payments."
+          }
+        },
+
+        {
+          "name": "Create Subscription",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "var json = pm.response.json();",
+            "if (json.success && json.data) {",
+            "    pm.environment.set('subscription_id', json.data.id);",
+            "    console.log('✅ subscription_id saved: ' + json.data.id);",
+            "}"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"planId\": \"{{plan_id}}\",\n  \"branchId\": \"{{branch_id}}\",\n  \"startDate\": \"2026-05-06T00:00:00.000Z\",\n  \"autoRenew\": true,\n  \"notes\": \"First subscription\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/subscriptions" },
+            "description": "ORG_ADMIN / BRANCH_MANAGER. Auto-creates a PENDING payment record."
+          }
+        },
+
+        {
+          "name": "Cancel Subscription",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{base_url}}/subscriptions/{{subscription_id}}/cancel" },
+            "description": "No body needed. Sets status = CANCELLED and autoRenew = false."
+          }
+        },
+
+        {
+          "name": "Freeze Subscription",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"freezeStart\": \"2026-05-10T00:00:00.000Z\",\n  \"freezeEnd\": \"2026-05-15T00:00:00.000Z\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/subscriptions/{{subscription_id}}/freeze" },
+            "description": "Extends endDate by the number of frozen days. Respects maxFreezeDays from the plan."
+          }
+        },
+
+        {
+          "name": "Unfreeze Subscription",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{base_url}}/subscriptions/{{subscription_id}}/unfreeze" },
+            "description": "No body needed. Sets status back to ACTIVE, clears freeze dates."
+          }
+        },
+
+        {
+          "name": "Toggle Auto-Renew",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"autoRenew\": false\n}"
+            },
+            "url": { "raw": "{{base_url}}/subscriptions/{{subscription_id}}/auto-renew" }
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "✅ Attendance",
+      "item": [
+
+        {
+          "name": "Check In",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"branchId\": \"{{branch_id}}\",\n  \"notes\": \"Morning session\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/attendance/check-in" },
+            "description": "Any role. branchId falls back to user's assigned branchId from JWT if not provided."
+          }
+        },
+
+        {
+          "name": "Check Out",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"branchId\": \"{{branch_id}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/attendance/check-out" },
+            "description": "Any role."
+          }
+        },
+
+        {
+          "name": "Get My Attendance History",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/attendance/my?page=1&limit=20",
+              "query": [
+                { "key": "page",  "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            },
+            "description": "Any role."
+          }
+        },
+
+        {
+          "name": "Get Branch Attendance",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/attendance?branchId={{branch_id}}&date=2026-05-06&userId={{user_id}}&page=1&limit=50",
+              "query": [
+                { "key": "branchId", "value": "{{branch_id}}",  "description": "Required" },
+                { "key": "date",     "value": "2026-05-06",     "description": "YYYY-MM-DD filter", "disabled": false },
+                { "key": "userId",   "value": "{{user_id}}",    "description": "Filter by user", "disabled": true },
+                { "key": "page",     "value": "1" },
+                { "key": "limit",    "value": "50" }
+              ]
+            },
+            "description": "ORG_ADMIN / BRANCH_MANAGER / TRAINER. branchId is required."
+          }
+        }
+
+      ]
+    },
+
+    {
+      "name": "💰 Payments",
+      "item": [
+
+        {
+          "name": "Get Revenue Summary",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/payments/revenue-summary?startDate=2026-05-01&endDate=2026-05-31",
+              "query": [
+                { "key": "startDate", "value": "2026-05-01", "description": "ISO date or datetime" },
+                { "key": "endDate",   "value": "2026-05-31" }
+              ]
+            },
+            "description": "ORG_ADMIN / BRANCH_MANAGER. Returns totalRevenue and totalTransactions for the period."
+          }
+        },
+
+        {
+          "name": "Get All Payments",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/payments?status=PENDING&userId={{user_id}}&method=CASH&page=1&limit=20",
+              "query": [
+                { "key": "status",   "value": "PENDING",         "description": "PENDING | COMPLETED | FAILED | REFUNDED", "disabled": false },
+                { "key": "userId",   "value": "{{user_id}}",     "disabled": true },
+                { "key": "method",   "value": "CASH",            "description": "CASH | CARD | UPI | BANK_TRANSFER | ONLINE", "disabled": true },
+                { "key": "page",     "value": "1" },
+                { "key": "limit",    "value": "20" }
+              ]
+            },
+            "description": "ORG_ADMIN / BRANCH_MANAGER."
+          }
+        },
+
+        {
+          "name": "Get Payment by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/payments/{{payment_id}}" }
+          }
+        },
+
+        {
+          "name": "Record Manual Payment",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "var json = pm.response.json();",
+            "if (json.success && json.data) {",
+            "    pm.environment.set('payment_id', json.data.id);",
+            "    console.log('✅ payment_id saved: ' + json.data.id);",
+            "}"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"subscriptionId\": \"{{subscription_id}}\",\n  \"amount\": 999,\n  \"method\": \"CASH\",\n  \"notes\": \"Monthly fee collected\",\n  \"transactionId\": \"TXN001\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/payments" },
+            "description": "ORG_ADMIN / BRANCH_MANAGER. method: CASH | CARD | UPI | BANK_TRANSFER | ONLINE"
+          }
+        },
+
+        {
+          "name": "Update Payment Status",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"status\": \"COMPLETED\",\n  \"transactionId\": \"TXN001\",\n  \"paidAt\": \"2026-05-06T10:00:00.000Z\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/payments/{{payment_id}}/status" },
+            "description": "status: PENDING | COMPLETED | FAILED | REFUNDED. Setting COMPLETED auto-sets paidAt if not provided."
+          }
+        }
+
+      ]
+    }
+
+  ]
+}
