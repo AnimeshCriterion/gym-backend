@@ -151,13 +151,15 @@ tr:nth-child(even) td{background:#f8f9fc}
 <div class="top-header">
   <div class="top-header-inner">
     <h1>🏋️ Gym SaaS — Developer Documentation</h1>
-    <p>Complete reference for mobile app developers · v1.0 · Multi-tenant SaaS</p>
+    <p>Complete reference for mobile app developers · v1.1 · Multi-tenant SaaS</p>
     <div class="badges">
       <span class="badge">REST · JSON</span>
       <span class="badge">JWT Auth</span>
       <span class="badge">Node.js + Express 5</span>
       <span class="badge">Prisma 7 + SQLite</span>
       <span class="badge">5 Roles</span>
+      <span class="badge">7-Day Trial</span>
+      <span class="badge">Rate Limited</span>
     </div>
     <div class="tab-nav">
       <button class="tab-btn active" onclick="switchTab('api',this)">📡 API Reference</button>
@@ -263,7 +265,28 @@ tr:nth-child(even) td{background:#f8f9fc}
 </div>
 
 <div class="endpoint">
-  <div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/auth/me</span><span class="auth-tag protected">Protected</span><span class="ep-note">Current user from token</span></div>
+  <div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/auth/me</span><span class="auth-tag protected">Protected</span><span class="ep-note">Any role · Returns fresh data from DB</span></div>
+</div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method PUT">PUT</span><span class="ep-path">/auth/me</span><span class="auth-tag protected">Protected</span><span class="ep-note">Any role · Update own profile</span></div>
+  <div class="ep-body">
+<pre><code>{
+  <span class="k">"name"</span>: <span class="s">"New Name"</span>,          <span class="c">// optional</span>
+  <span class="k">"phone"</span>: <span class="s">"9876543210"</span>,       <span class="c">// optional</span>
+  <span class="k">"gender"</span>: <span class="s">"Male"</span>,            <span class="c">// optional</span>
+  <span class="k">"address"</span>: <span class="s">"New Address"</span>,    <span class="c">// optional</span>
+  <span class="k">"emergencyContact"</span>: <span class="s">"999…"</span>, <span class="c">// optional</span>
+  <span class="k">"dateOfBirth"</span>: <span class="s">"1995-06-15"</span> <span class="c">// optional</span>
+}</code></pre>
+  <div class="warn">Cannot change <code>email</code> or <code>role</code> via this endpoint.</div>
+  </div>
+</div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method POST">POST</span><span class="ep-path">/auth/change-password</span><span class="auth-tag protected">Protected</span><span class="ep-note">Any role · Invalidates all refresh tokens</span></div>
+  <div class="ep-body">
+<pre><code>{ <span class="k">"currentPassword"</span>: <span class="s">"old123"</span>, <span class="k">"newPassword"</span>: <span class="s">"new12345"</span> }  <span class="c">// newPassword min 8 chars</span></code></pre>
+  <div class="info">After success, all devices are logged out. The app should redirect to login.</div>
+  </div>
 </div>
 </div>
 
@@ -286,10 +309,12 @@ tr:nth-child(even) td{background:#f8f9fc}
 <div class="card">
 <h2>3. Users</h2>
 <div class="endpoint">
-  <div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/users</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN / BRANCH_MANAGER</span></div>
-  <div class="ep-body">Query: <code>page, limit, role, branchId, isActive</code></div>
+  <div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/users</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN / BRANCH_MANAGER / TRAINER</span></div>
+  <div class="ep-body">Query: <code>page, limit, role, branchId, isActive, trainerId</code>
+  <div class="info" style="margin-top:6px">TRAINER accounts are auto-scoped — returns only members where <code>trainerId = caller's ID</code>. No extra param needed.</div>
+  </div>
 </div>
-<div class="endpoint"><div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/users/:id</span><span class="auth-tag protected">Protected</span><span class="ep-note">Returns user + branch + latest subscription</span></div></div>
+<div class="endpoint"><div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/users/:id</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN / BRANCH_MANAGER / TRAINER · Returns user + branch + latest subscription · 403 if TRAINER accesses non-assigned member</span></div></div>
 <div class="endpoint">
   <div class="ep-head"><span class="method POST">POST</span><span class="ep-path">/users</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN / BRANCH_MANAGER</span></div>
   <div class="ep-body">
@@ -343,7 +368,7 @@ tr:nth-child(even) td{background:#f8f9fc}
   <div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/subscriptions</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN / BRANCH_MANAGER</span></div>
   <div class="ep-body">Query: <code>page, limit, status, userId, branchId</code> · status: ACTIVE|EXPIRED|CANCELLED|PENDING|FROZEN</div>
 </div>
-<div class="endpoint"><div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/subscriptions/:id</span><span class="auth-tag protected">Protected</span><span class="ep-note">Includes renewal logs + payments</span></div></div>
+<div class="endpoint"><div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/subscriptions/:id</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN / BRANCH_MANAGER / TRAINER (read-only) · Includes renewal logs + payments</span></div></div>
 <div class="endpoint">
   <div class="ep-head"><span class="method POST">POST</span><span class="ep-path">/subscriptions</span><span class="auth-tag protected">Protected</span><span class="ep-note">Creates subscription + pending payment</span></div>
   <div class="ep-body">
@@ -362,6 +387,7 @@ tr:nth-child(even) td{background:#f8f9fc}
   <div class="ep-head"><span class="method PATCH">PATCH</span><span class="ep-path">/subscriptions/:id/freeze</span><span class="auth-tag protected">Protected</span><span class="ep-note">Extends end date by frozen days</span></div>
   <div class="ep-body"><pre><code>{ <span class="k">"freezeStart"</span>: <span class="s">"2026-05-10"</span>, <span class="k">"freezeEnd"</span>: <span class="s">"2026-05-15"</span> }</code></pre></div>
 </div>
+<div class="endpoint"><div class="ep-head"><span class="method PATCH">PATCH</span><span class="ep-path">/subscriptions/:id/unfreeze</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN / BRANCH_MANAGER · No body · Sets status back to ACTIVE</span></div></div>
 <div class="endpoint">
   <div class="ep-head"><span class="method PATCH">PATCH</span><span class="ep-path">/subscriptions/:id/auto-renew</span><span class="auth-tag protected">Protected</span></div>
   <div class="ep-body"><pre><code>{ <span class="k">"autoRenew"</span>: <span class="b">false</span> }</code></pre></div>
@@ -417,17 +443,73 @@ tr:nth-child(even) td{background:#f8f9fc}
 </div>
 </div>
 
+<!-- PLATFORM -->
+<div class="card">
+<h2>8. Platform Subscription</h2>
+<div class="info">Every new organization gets a <strong>7-day free trial</strong> on registration. When the trial or paid plan expires, ORG_ADMIN and BRANCH_MANAGER receive <code>402</code> on all requests until they subscribe. Members and trainers are never blocked.</div>
+<div class="cols2" style="margin-top:12px">
+<div>
+<h3>Platform Plans</h3>
+<table>
+<tr><th>Plan</th><th>Price</th><th>Duration</th><th>Branches</th><th>Members</th></tr>
+<tr><td><strong>TRIAL</strong></td><td>Free</td><td>7 days</td><td>1</td><td>50</td></tr>
+<tr><td><strong>BASIC</strong></td><td>₹999/mo</td><td>30 days</td><td>2</td><td>500</td></tr>
+<tr><td><strong>PRO</strong></td><td>₹2,999/mo</td><td>30 days</td><td>Unlimited</td><td>Unlimited</td></tr>
+</table>
+</div>
+<div>
+<h3>402 Expired Response</h3>
+<pre><code>{
+  <span class="k">"success"</span>: <span class="b">false</span>,
+  <span class="k">"message"</span>: <span class="s">"Your free trial has expired..."</span>,
+  <span class="k">"data"</span>: {
+    <span class="k">"expiredPlan"</span>: <span class="s">"TRIAL"</span>,
+    <span class="k">"subscribeAt"</span>: <span class="s">"/api/v1/platform/subscribe"</span>,
+    <span class="k">"viewPlansAt"</span>: <span class="s">"/api/v1/platform/plans"</span>
+  }
+}</code></pre>
+</div>
+</div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/platform/plans</span><span class="auth-tag public">Public</span><span class="ep-note">List all available plans with features and pricing</span></div>
+</div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method GET">GET</span><span class="ep-path">/platform/status</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN only · Current plan, expiry date, days remaining</span></div>
+  <div class="ep-body">
+<pre><code><span class="c">// Response 200</span>
+{
+  <span class="k">"data"</span>: {
+    <span class="k">"organization"</span>: <span class="s">"FitLife Gym"</span>,
+    <span class="k">"currentPlan"</span>: { <span class="k">"key"</span>: <span class="s">"TRIAL"</span>, <span class="k">"name"</span>: <span class="s">"Free Trial"</span>, <span class="k">"price"</span>: <span class="n">0</span> },
+    <span class="k">"platformExpiresAt"</span>: <span class="s">"2026-05-13T..."</span>,
+    <span class="k">"isActive"</span>: <span class="b">true</span>,
+    <span class="k">"daysRemaining"</span>: <span class="n">7</span>,
+    <span class="k">"status"</span>: <span class="s">"ACTIVE"</span>
+  }
+}</code></pre>
+  </div>
+</div>
+<div class="endpoint">
+  <div class="ep-head"><span class="method POST">POST</span><span class="ep-path">/platform/subscribe</span><span class="auth-tag protected">Protected</span><span class="ep-note">ORG_ADMIN only · Upgrade or renew plan</span></div>
+  <div class="ep-body">
+<pre><code>{ <span class="k">"plan"</span>: <span class="s">"BASIC"</span>, <span class="k">"transactionId"</span>: <span class="s">"TXN123"</span> }  <span class="c">// plan: BASIC | PRO · transactionId optional</span></code></pre>
+  <div class="info">Early renewal stacks on the current expiry date — renewing before expiry extends from end of current period, not from today.</div>
+  </div>
+</div>
+</div>
+
 <!-- STATUS CODES -->
 <div class="card">
-<h2>8. HTTP Status Codes</h2>
+<h2>9. HTTP Status Codes</h2>
 <table>
 <tr><th>Code</th><th>Meaning</th><th>Common Cause</th></tr>
 <tr><td><span class="pill p200">200</span></td><td>OK</td><td>Successful GET / PATCH / DELETE</td></tr>
 <tr><td><span class="pill p201">201</span></td><td>Created</td><td>Successful POST (register, create user, create sub)</td></tr>
 <tr><td><span class="pill p400">400</span></td><td>Bad Request</td><td>Validation error, freeze limit exceeded, already checked in</td></tr>
 <tr><td><span class="pill p401">401</span></td><td>Unauthorized</td><td>Missing / expired / invalid token, wrong password</td></tr>
-<tr><td><span class="pill p403">403</span></td><td>Forbidden</td><td>Insufficient role permissions</td></tr>
+<tr><td><span class="pill p403">403</span></td><td>Forbidden</td><td>Insufficient role permissions, TRAINER accessing non-assigned member</td></tr>
 <tr><td><span class="pill p404">404</span></td><td>Not Found</td><td>Resource doesn't exist or belongs to different org</td></tr>
+<tr><td style="background:#fff3e0"><span class="pill" style="background:#fff3e0;color:#e65100;font-weight:800">402</span></td><td>Payment Required</td><td>Platform trial/subscription expired — subscribe to continue</td></tr>
 <tr><td><span class="pill p409">409</span></td><td>Conflict</td><td>Email / slug already registered</td></tr>
 </table>
 </div>
@@ -478,6 +560,8 @@ tr:nth-child(even) td{background:#f8f9fc}
     <div class="field-row"><span class="field-name">address</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
     <div class="field-row"><span class="field-name">logoUrl</span><span class="field-type">String?</span><span class="field-opt">optional</span></div>
     <div class="field-row"><span class="field-name">isActive</span><span class="field-type">Boolean</span><span class="field-meta">default true</span></div>
+    <div class="field-row" style="background:#fff8e1"><span class="field-name">platformPlan</span><span class="field-type">PlatformPlan</span><span class="field-meta">TRIAL · default on register</span></div>
+    <div class="field-row" style="background:#fff8e1"><span class="field-name">platformExpiresAt</span><span class="field-type">DateTime?</span><span class="field-meta">null = never expires</span></div>
     <div class="field-row"><span class="field-name">createdAt</span><span class="field-type">DateTime</span><span class="field-meta">auto</span></div>
     <div class="field-row"><span class="field-name">updatedAt</span><span class="field-type">DateTime</span><span class="field-meta">auto</span></div>
   </div>
@@ -613,6 +697,10 @@ tr:nth-child(even) td{background:#f8f9fc}
     <div class="enum-name">Role</div>
     <span class="enum-val">SUPER_ADMIN</span><span class="enum-val">ORG_ADMIN</span><span class="enum-val">BRANCH_MANAGER</span><span class="enum-val">TRAINER</span><span class="enum-val">MEMBER</span>
   </div>
+  <div class="enum-card" style="border-color:#fbbc04">
+    <div class="enum-name" style="color:#b06000">PlatformPlan</div>
+    <span class="enum-val" style="background:#fef7e0;color:#b06000">TRIAL</span><span class="enum-val" style="background:#fef7e0;color:#b06000">BASIC</span><span class="enum-val" style="background:#fef7e0;color:#b06000">PRO</span>
+  </div>
   <div class="enum-card">
     <div class="enum-name">BillingCycle</div>
     <span class="enum-val">DAILY</span><span class="enum-val">WEEKLY</span><span class="enum-val">MONTHLY</span><span class="enum-val">QUARTERLY</span><span class="enum-val">HALF_YEARLY</span><span class="enum-val">YEARLY</span>
@@ -703,12 +791,13 @@ tr:nth-child(even) td{background:#f8f9fc}
 <div class="feature-card fc-tr">
   <div class="fc-head">💪 TRAINER — Fitness Trainer</div>
   <div class="fc-body">
-    <div class="feature-item"><span class="fi-icon">📋</span>View membership plans</div>
-    <div class="feature-item"><span class="fi-icon">👥</span>View assigned members list</div>
-    <div class="feature-item"><span class="fi-icon">📅</span>View attendance records for the branch</div>
-    <div class="feature-item"><span class="fi-icon">✅</span>Check in / check out to gym</div>
+    <div class="feature-item"><span class="fi-icon">👥</span>View assigned members only (auto-scoped by trainerId)</div>
+    <div class="feature-item"><span class="fi-icon">📋</span>View member subscription details (read-only)</div>
+    <div class="feature-item"><span class="fi-icon">📅</span>View branch attendance (all check-ins)</div>
+    <div class="feature-item"><span class="fi-icon">✅</span>Check in / check out own gym entry</div>
     <div class="feature-item"><span class="fi-icon">📜</span>View own attendance history</div>
-    <div class="feature-item"><span class="fi-icon">🔒</span>Cannot manage plans, payments, or subscriptions</div>
+    <div class="feature-item"><span class="fi-icon">🗓️</span>View membership plans (browse only)</div>
+    <div class="feature-item"><span class="fi-icon">🔒</span>Cannot manage subscriptions, payments, users, or plans</div>
   </div>
 </div>
 
@@ -733,15 +822,19 @@ tr:nth-child(even) td{background:#f8f9fc}
 <table>
 <tr><th>Action</th><th><span class="role r-sa">SA</span></th><th><span class="role r-oa">OA</span></th><th><span class="role r-bm">BM</span></th><th><span class="role r-tr">TR</span></th><th><span class="role r-mb">MB</span></th></tr>
 <tr><td>Login / Refresh / Logout</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td></tr>
+<tr><td>Update own profile / Change password</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td></tr>
 <tr><td>Manage Organizations (CRUD)</td><td class="tick">✔</td><td class="part">own</td><td class="cross">✘</td><td class="cross">✘</td><td class="cross">✘</td></tr>
+<tr><td>Platform subscribe / view status</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td><td class="cross">✘</td></tr>
 <tr><td>Create / Delete Branches</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td><td class="cross">✘</td></tr>
 <tr><td>View Branches</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td></tr>
 <tr><td>Add Users (members/trainers)</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td></tr>
+<tr><td>View Users</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="part">assigned</td><td class="cross">✘</td></tr>
 <tr><td>Deactivate Users</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td><td class="cross">✘</td></tr>
 <tr><td>Create / Delete Plans</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td><td class="cross">✘</td></tr>
 <tr><td>View Plans</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td></tr>
 <tr><td>Create Subscriptions</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td></tr>
-<tr><td>Cancel / Freeze Subscriptions</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td></tr>
+<tr><td>Cancel / Freeze / Unfreeze Subscriptions</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="cross">✘</td><td class="cross">✘</td></tr>
+<tr><td>View Subscription (by ID)</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="part">read</td><td class="cross">✘</td></tr>
 <tr><td>View Own Subscriptions</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td></tr>
 <tr><td>Check In / Check Out</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td></tr>
 <tr><td>View All Attendance</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="tick">✔</td><td class="part">own</td></tr>
@@ -945,6 +1038,7 @@ Body: { status: "COMPLETED", method: "CASH" }</code></pre>
 <tr><td><span class="pill p409">409</span> Conflict</td><td>Email already registered</td><td>Show "Email already in use"</td></tr>
 <tr><td><span class="pill p400">400</span> Already checked in</td><td>Double check-in attempt</td><td>Show check-out button instead</td></tr>
 <tr><td><span class="pill p400">400</span> Freeze limit exceeded</td><td>maxFreezeDays exceeded</td><td>Show remaining freeze days</td></tr>
+<tr><td><span class="pill" style="background:#fff3e0;color:#e65100;font-weight:800">402</span> Trial/plan expired</td><td>Platform subscription lapsed (admin/manager only)</td><td>Show upgrade screen with plan options — call <code>GET /platform/plans</code></td></tr>
 </table>
 </div>
 
@@ -979,6 +1073,7 @@ Body: { status: "COMPLETED", method: "CASH" }</code></pre>
 <tr><td>Revenue Report</td><td>GET /payments/revenue-summary</td></tr>
 <tr><td>Plans Manage</td><td>CRUD /plans</td></tr>
 <tr><td>Branches</td><td>CRUD /branches</td></tr>
+<tr><td>Platform Status</td><td>GET /platform/status, POST /platform/subscribe</td></tr>
 </table>
 </div>
 </div>
